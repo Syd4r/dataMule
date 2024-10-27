@@ -36,6 +36,11 @@ class Admin(User):
         'polymorphic_identity': 'admin',
     }
 
+class SuperAdmin(User):
+    __mapper_args__ = {
+        'polymorphic_identity': 'super_admin',
+    }
+
 
 class Peak(User):
     __mapper_args__ = {
@@ -59,11 +64,11 @@ class Athlete(User):
     position = db.Column(db.String(50))
     hawkin_api_id = db.Column(db.String(100), nullable=True)
 
-    date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
-    jump_height = db.Column(db.Float, nullable=False)
-    braking_rfd = db.Column(db.Float, nullable=False)
-    mrsi = db.Column(db.Float, nullable=False)
-    peak_propulsive_force = db.Column(db.Float, nullable=False)
+    date = db.Column(db.Date, nullable=True, default=datetime.utcnow)
+    jump_height = db.Column(db.Float, nullable=True)
+    braking_rfd = db.Column(db.Float, nullable=True)
+    mrsi = db.Column(db.Float, nullable=True)
+    peak_propulsive_force = db.Column(db.Float, nullable=True)
 
     __mapper_args__ = {
         'polymorphic_identity': 'athlete',
