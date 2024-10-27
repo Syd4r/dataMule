@@ -1,0 +1,137 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: #333;
+    color: #fff;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 100;
+}
+
+.hamburger-menu.open {
+    transform: translateX(0);
+}
+
+.hamburger-menu .close-btn {
+    font-size: 24px;
+    padding: 10px;
+    cursor: pointer;
+    text-align: right;
+}
+
+.hamburger-menu .menu-links {
+    list-style-type: none;
+    padding: 20px;
+}
+
+.hamburger-menu .menu-links li {
+    margin: 15px 0;
+}
+
+.hamburger-menu .menu-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+/* Hamburger Icon */
+.hamburger-icon {
+    font-size: 24px;
+    cursor: pointer;
+    padding: 15px;
+}
+
+/* Welcome Section */
+.welcome-section {
+    background: url('images/background.jpg') center/cover no-repeat;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+.welcome-section h1 {
+    font-size: 24px; /* Reduced font size for mobile */
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+/* Icon Grid */
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.icon-box {
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.3s;
+}
+
+.icon-box:hover {
+    background-color: #e0e0e0;
+}
+
+.icon-box img {
+    width: 100%; /* Responsive image */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 10px;
+}
+
+.icon-box span {
+    font-size: 14px;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .welcome-section {
+        height: 200px; /* Reduce height on smaller screens */
+    }
+
+    .welcome-section h1 {
+        font-size: 20px; /* Smaller font size */
+        padding: 8px 16px; /* Adjust padding */
+    }
+
+    .hamburger-icon {
+        font-size: 20px; /* Adjust hamburger icon size */
+        padding: 10px; /* Adjust padding */
+    }
+}
+
+@media (max-width: 480px) {
+    .icon-grid {
+        gap: 10px; /* Reduce gap for smaller screens */
+    }
+
+    .icon-box {
+        padding: 15px; /* Adjust padding */
+    }
+}
