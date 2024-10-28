@@ -1,35 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, initial-scale=1, maximum-scale=1">
-    <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
-  </head>
-  <body>
-    <div class="login-wrapper">
-      <div class="login-container">
-        <h1>Login</h1>
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <div class="flash-messages">
-              {% for category, message in messages %}
-                <div class="flash-message {{ category }}">{{ message }}</div>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
-        <form action="{{ url_for('auth.register') }}" method="post">
-          <input type="text" name="first_name" placeholder="First Name" required>
-          <input type="text" name="last_name" placeholder="Last Name" required>
-          <input type="text" name="birth_date" placeholder="Birth Date: MM/DD/YYYY" required>
-          <button type="submit">Register</button>
-        </form>
-        <div class="extra-links">
-          <a href="{{ url_for('auth.login') }}">Already set up account? Login</a>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+{% extends "base/base_login.html" %}
+
+{% block title %}Register{% endblock %}
+{% block header %}Register{% endblock %}
+{% block form_action %}{{ url_for('auth.register') }}{% endblock %}
+{% block form_fields %}
+  <input type="text" name="first_name" placeholder="First Name" required>
+  <input type="text" name="last_name" placeholder="Last Name" required>
+  <input type="text" name="birth_date" placeholder="Birth Date: MM/DD/YYYY" required>
+{% endblock %}
+{% block button_text %}Register{% endblock %}
+{% block extra_links %}
+  <a href="{{ url_for('auth.login') }}">Already set up account? Login</a>
+{% endblock %}
