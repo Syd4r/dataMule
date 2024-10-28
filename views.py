@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
+from models import db, Athlete
 
 # Create a blueprint
 main_blueprint = Blueprint('main', __name__)
@@ -50,10 +51,35 @@ def index():
 def hawkin():
     return render_template("hawkin.html")
 
-@main_blueprint.route('/add_athletes', methods=['GET'])
+@main_blueprint.route('/add_athletes', methods=['GET', 'POST'])
 @login_required
 def add_athletes():
-    pass
+    if request.method == 'POST':
+        if 'action' in request.form:
+            action = request.form.get('action')
+            if action == 'add':
+                hawkins_id = request.form.get('hawkins_id')
+                first_name = request.form.get('first_name')
+                last_name = request.form.get('last_name')
+                birth_date = request.form.get('birth_date')
+                gender = request.form.get('gender')
+                sport = request.form.get('sport')
+                position = request.form.get('position')
+                grad_year = request.form.get('grad_year')
+
+                athlete = Athlete(hawkins_id=hawkins_id, first_name=first_name, last_name=last_name, birth_date=birth_date, gender=gender, sport=sport, position=position, grad_year=grad_year)
+                db.session.add(athlete)
+                db.session.commit()
+
+
+                flash('Athlete added successfully!', 'success')
+                
+            elif action == 'delete':
+
+                flash('Athlete deleted successfully!', 'success')
+
+    return render_template("add_athletes.html")
+
 
 @main_blueprint.route('/add_coaches', methods=['GET'])
 @login_required

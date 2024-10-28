@@ -2,6 +2,7 @@
 from datetime import datetime
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash
 
 # Database Models
 db = SQLAlchemy()
@@ -10,11 +11,11 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    colby_id = db.Column(db.Integer, unique=True, nullable=False)
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True)
     user_type = db.Column(db.String(50), nullable=False)  # For polymorphic identity
+    password_hash = db.Column(db.String(100), nullable=False, default='passwordNeedsToBeReset')  # Default password
 
     __mapper_args__ = {
         'polymorphic_identity': 'user',
@@ -29,6 +30,10 @@ class User(UserMixin, db.Model):
     def check_colby_id(self, colby_id):
         colby_id = int(colby_id)
         return self.colby_id == colby_id
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
 
 
 class Admin(User):
@@ -58,17 +63,14 @@ class Athlete(User):
     __tablename__ = 'athletes'
 
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)  # Reuse primary key from User
-    status = db.Column(db.String(20))  # Use descriptive strings
+    hawkins_id = db.Column(db.String(100))
+    birth_date = db.Column(db.String(50))
     gender = db.Column(db.String(10))
-    class_year = db.Column(db.Integer)
+    sport = db.Column(db.String(50))
     position = db.Column(db.String(50))
-    hawkin_api_id = db.Column(db.String(100), nullable=True)
+    grad_year = db.Column(db.Integer)
 
-    date = db.Column(db.Date, nullable=True, default=datetime.utcnow)
-    jump_height = db.Column(db.Float, nullable=True)
-    braking_rfd = db.Column(db.Float, nullable=True)
-    mrsi = db.Column(db.Float, nullable=True)
-    peak_propulsive_force = db.Column(db.Float, nullable=True)
+    athlete_performance = db.relationship('AlthetePerformance', backref='athlete', cascade="all, delete-orphan")
 
     __mapper_args__ = {
         'polymorphic_identity': 'athlete',
@@ -77,14 +79,17 @@ class Athlete(User):
     def __repr__(self):
         return f"<Athlete {self.first_name} {self.last_name}, Colby ID: {self.colby_id}>"
     
-    def get_performance(self):
-        return {
-            'date': self.date,
-            'jump_height': self.jump_height,
-            'braking_rfd': self.braking_rfd,
-            'mrsi': self.mrsi,
-            'peak_propulsive_force': self.peak_propulsive_force
-        }
+class AlthetePerformance(db.Model):
+    date = db.Column(db.Date, nullable=True, default=datetime.utcnow)
+    jump_height = db.Column(db.Float, nullable=True)
+    braking_rfd = db.Column(db.Float, nullable=True)
+    mrsi = db.Column(db.Float, nullable=True)
+    peak_propulsive_force = db.Column(db.Float, nullable=True)
+    athlete_id = db.Column(db.Integer, db.ForeignKey('athletes.id'), primary_key=True)
+
+    def __repr__(self):
+        return f"<Performance for Athlete ID: {self.athlete_id}, Date: {self.date}>"
+    
 
 
 class Team(db.Model):
