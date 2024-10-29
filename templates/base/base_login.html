@@ -24,7 +24,7 @@
         
         <form action="{% block form_action %}{% endblock %}" method="post">
           {% block form_fields %}{% endblock %}
-          <button type="submit">{% block button_text %}Login{% endblock %}</button>
+          <button type="submit" name="token" value="{{token}}">{% block button_text %}Login{% endblock %}</button>
         </form>
         
         <div class="extra-links">

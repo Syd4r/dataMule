@@ -6,8 +6,8 @@
 {% block form_fields %}
   <input type="text" name="email" placeholder="Email" required>
   <input type="password" name="password" placeholder="Password" required>
-  <button type="submit" name="token" value="{{ token }}">Register</button>
 {% endblock %}
+{% block button_text %}Setup{% endblock %}
 {% block extra_links %}
   <a href="{{ url_for('auth.login') }}">Already set up account? Login</a>
 {% endblock %}
