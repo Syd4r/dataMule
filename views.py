@@ -70,111 +70,61 @@ def hawkin():
 @main_blueprint.route('/add_athletes', methods=['GET', 'POST'])
 @login_required
 def add_athletes():
-    if request.method == 'POST':
-        if 'action' in request.form:
-            action = request.form.get('action')
-            if action == 'add':
-                if request.form.get('hawkins_id') is not None:
-                    hawkins_id = request.form.get('hawkins_id')
-                    first_name = request.form.get('first_name')
-                    last_name = request.form.get('last_name')
-                    birth_date = request.form.get('birth_date')
-                    gender = request.form.get('gender')
-                    sport = request.form.get('sport')
-                    position = request.form.get('position')
-                    grad_year = request.form.get('grad_year')
-
-                    try:
-                        athlete = Athlete(hawkins_id=hawkins_id, first_name=first_name, last_name=last_name, birth_date=birth_date, gender=gender, sport=sport, position=position, grad_year=grad_year)
-                        db.session.add(athlete)
-                        db.session.commit()
-                        flash('Athlete added successfully!', 'success')
-                    except Exception as e:
-                        flash('Error adding athlete!', 'error')
-                else:
-                    file = request.files['file']
-                    if file.filename == '':
-                        flash('No file selected!', 'error')
-                        return render_template("add_athletes.html", links=get_links(current_user))
-                    try:
-                        file.save(file.filename)
-                        with open(file.filename, 'r') as f:
-                            lines = f.readlines()
-                            # Skip the first line
-                            lines = lines[1:]
-                            for line in lines:
-                                data = line.split(',')
-                                if len(data) == 8:
-                                    #check if athlete already exists
-                                    #trim and remove quoatation marks
-                                    data = [x.strip().replace('"', '').replace('\n','') for x in data]
-                                    athlete = Athlete.query.filter_by(hawkins_id=data[0], first_name=data[1], last_name=data[2], birth_date=data[3], gender=data[4], sport=data[5], position=data[6], grad_year=data[7]).first()
-                                    if athlete is None:
-                                        athlete = Athlete(hawkins_id=data[0], first_name=data[1], last_name=data[2], birth_date=data[3], gender=data[4], sport=data[5], position=data[6], grad_year=data[7])
-                                        db.session.add(athlete)
-                            db.session.commit()
-                            flash('Athletes added successfully!', 'success')
-                        # Delete the file
-                        file.close()
-                        os.remove(file.filename)
-                    except Exception as e:
-                        print(e)
-                        print(data)
-                        flash('Error adding athletes!', 'error')                
-            elif action == 'delete':
-                if request.form.get('hawkins_id') is not None:
-                    hawkins_id = request.form.get('hawkins_id')
-                    first_name = request.form.get('first_name')
-                    last_name = request.form.get('last_name')
-                    birth_date = request.form.get('birth_date')
-                    gender = request.form.get('gender')
-                    sport = request.form.get('sport')
-                    position = request.form.get('position')
-                    grad_year = request.form.get('grad_year')
-
-                    # Query the athlete from the database, however, some fields may be empty
-                    athlete = Athlete.query.filter_by(hawkins_id=hawkins_id, first_name=first_name, last_name=last_name, birth_date=birth_date, gender=gender, sport=sport, position=position, grad_year=grad_year).first()
-                    if athlete is None:
-                        athlete = Athlete.query.filter_by(hawkins_id=hawkins_id).first()
-                        if athlete is None:
-                            flash('Athlete not found!', 'error')
-                            return render_template("add_athletes.html")
+    if request.method == 'POST' and 'action' in request.form:
+        action = request.form.get('action')
+        hawkins_id = request.form.get('hawkins_id')
+        
+        if hawkins_id:
+            form_data = {
+                'hawkins_id': hawkins_id,
+                'first_name': request.form.get('first_name'),
+                'last_name': request.form.get('last_name'),
+                'birth_date': request.form.get('birth_date'),
+                'gender': request.form.get('gender'),
+                'sport': request.form.get('sport'),
+                'position': request.form.get('position'),
+                'grad_year': request.form.get('grad_year')
+            }
+            athlete = Athlete.query.filter_by(hawkins_id=hawkins_id).first()
+            try:
+                if action == 'add' and not athlete:
+                    db.session.add(Athlete(**form_data))
+                    flash('Athlete added successfully!', 'success')
+                elif action == 'delete' and athlete:
                     db.session.delete(athlete)
-                    db.session.commit()
                     flash('Athlete deleted successfully!', 'success')
-                else:
-                    file = request.files['file']
-                    if file.filename == '':
-                        flash('No file selected!', 'error')
-                        return render_template("add_athletes.html")
-                    try:
-                        file.save(file.filename)
-                        with open(file.filename, 'r') as f:
-                            lines = f.readlines()
-                            # Skip the first line
-                            lines = lines[1:]
-                            for line in lines:
-                                data = line.split(',')
-                                if len(data) == 8:
-                                    #check if athlete already exists
-                                    #trim and remove quoatation marks
-                                    data = [x.strip().replace('"', '').replace('\n','') for x in data]
-                                    athlete = Athlete.query.filter_by(hawkins_id=data[0], first_name=data[1], last_name=data[2], birth_date=data[3], gender=data[4], sport=data[5], position=data[6], grad_year=data[7]).first()
-                                    if athlete is not None:
-                                        db.session.delete(athlete)
-                            db.session.commit()
-                            flash('Athletes deleted successfully!', 'success')
-                        # Delete the file
-                        file.close()
-                        os.remove(file.filename)
-
-                    except Exception as e:
-                        print(e)
-                        print(data)
-                        flash('Error deleting athletes!', 'error')
-
-
+                db.session.commit()
+            except Exception:
+                flash(f"Error {action}ing athlete!", 'error')
+        else:
+            file = request.files.get('file')
+            if not file or file.filename == '':
+                flash('No file selected!', 'error')
+            else:
+                process_csv(file, action)
+    
     return render_template("add_athletes.html", links=get_links(current_user))
+
+def process_csv(file, action):
+    try:
+        file.save(file.filename)
+        with open(file.filename, 'r') as f:
+            lines = [line.split(',') for line in f.readlines()[1:]]
+            for data in lines:
+                if len(data) == 8:
+                    data = [x.strip().replace('"', '').replace('\n', '') for x in data]
+                    athlete = Athlete.query.filter_by(hawkins_id=data[0]).first()
+                    if action == 'add' and athlete is None:
+                        db.session.add(Athlete(*data))
+                    elif action == 'delete' and athlete:
+                        db.session.delete(athlete)
+        db.session.commit()
+        flash(f"Athletes {action}ed successfully!", 'success')
+        os.remove(file.filename)
+    except Exception as e:
+        flash(f"Error {action}ing athletes!", 'error')
+        print(e, data)
+
 
 
 @main_blueprint.route('/add_coaches', methods=['GET'])

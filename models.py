@@ -79,6 +79,16 @@ class Athlete(User):
     def __repr__(self):
         return f"<Athlete {self.first_name} {self.last_name}, Colby ID: {self.colby_id}>"
     
+    def __init__(self, hawkins_id, first_name, last_name, birth_date, gender, sport, position, grad_year):
+        self.hawkins_id = hawkins_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.birth_date = birth_date
+        self.gender = gender
+        self.sport = sport
+        self.position = position
+        self.grad_year = grad_year
+    
 class AlthetePerformance(db.Model):
     date = db.Column(db.Date, nullable=True, default=datetime.utcnow)
     jump_height = db.Column(db.Float, nullable=True)
