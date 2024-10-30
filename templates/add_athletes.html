@@ -1,27 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Add Athletes</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='add_athletes.css') }}">
-    </head>
+{% extends "base/base.html" %}
 
-    <body>
-        <div class="add-athletes-container">
-            <h1>Add/Delete Athletes</h1>
+{% block title %}Add Athletes{% endblock %}
 
-            <!-- Flash messages section -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-                <div class="flash-messages">
-                  {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">{{ message }}</div>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            {% endwith %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='add_athletes.css') }}">
+{% endblock %}
 
+{% block content %}
+    <div class="add-athletes-container">
+        <h1>Add/Delete Athletes</h1>
+
+        <!-- Flash messages section -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="containers">
+            <!-- Form to add or delete a single athlete -->
             <form action="{{ url_for('main.add_athletes') }}" method="post">
                 <div class="inputs">
                     <input type="text" name="hawkins_id" placeholder="Hawkins ID" required>
@@ -37,6 +38,18 @@
                     <button type="submit" name="action" value="add">Add Athlete</button>
                     <button type="submit" name="action" value="delete">Delete Athlete</button>
                 </div>
-            </form>            
+            </form>
+            
+            <!-- Form to add or delete athletes via CSV file -->
+            <form action="{{ url_for('main.add_athletes') }}" method="post" enctype="multipart/form-data">
+                <div class="inputs">
+                    <input type="file" name="file" accept=".csv" required>
+                </div>
+                <div class="buttons">
+                    <button type="submit" name="action" value="add">Add Athletes</button>
+                    <button type="submit" name="action" value="delete">Delete Athletes</button>
+                </div>
+            </form>
         </div>
-    </body>
+    </div>
+{% endblock %}

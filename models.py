@@ -15,7 +15,7 @@ class User(UserMixin, db.Model):
     last_name = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), unique=True)
     user_type = db.Column(db.String(50), nullable=False)  # For polymorphic identity
-    password_hash = db.Column(db.String(100), nullable=False, default='passwordNeedsToBeReset')  # Default password
+    password_hash = db.Column(db.String(100), nullable=False, default='passwordNeedsToBeSet')  # Default password
 
     __mapper_args__ = {
         'polymorphic_identity': 'user',

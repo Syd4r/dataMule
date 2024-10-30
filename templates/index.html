@@ -1,47 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome Page</title>
+{% extends "base/base.html" %}
+
+{% block title %}Welcome Page{% endblock %}
+
+{% block extra_head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
-</head>
-<body>
-    <!-- Hamburger Menu -->
-    <div class="hamburger-menu" id="hamburgerMenu">
-        <div class="close-btn" onclick="toggleMenu()">×</div>
-        <ul class="menu-links">
-            {% for link in links %}
-            <li><a href="{{ link.url }}">{{ link.name }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
-    
-    <!-- Main Content -->
-    <div class="content">
-        <!-- Hamburger Icon -->
-        <div class="hamburger-icon" onclick="toggleMenu()">☰</div>
+{% endblock %}
 
-        <!-- Background with Title -->
-        <div class="welcome-section">
-            <h1>Welcome, {{ user_name }}</h1>
-        </div>
-
-        <!-- Icon Boxes -->
-        <div class="icon-grid">
-            {% for link in links %}
-            <a href="{{ link.url }}" class="icon-box">
-                <img src="{{ url_for('static', filename=link.icon) }}" alt="{{ link.name }} Icon">
-                <span>{{ link.name }}</span>
-            </a>
-            {% endfor %}
-        </div>
+{% block content %}
+    <!-- Background with Title -->
+    <div class="welcome-section">
+        <h1>Welcome, {{ user_name }}</h1>
     </div>
 
-    <script>
-        function toggleMenu() {
-            document.getElementById("hamburgerMenu").classList.toggle("open");
-        }
-    </script>
-</body>
-</html>
+    <!-- Icon Boxes -->
+    <div class="icon-grid">
+        {% for link in links %}
+            {% if link.icon != 'NONE' %}    
+                <a href="{{ link.url }}" class="icon-box">
+                    <img src="{{ url_for('static', filename=link.icon) }}" alt="{{ link.name }} Icon">
+                    <span>{{ link.name }}</span>
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

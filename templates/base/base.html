@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Base Page{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Hamburger Menu -->
+    <div class="hamburger-menu" id="hamburgerMenu">
+        <div class="close-btn" onclick="toggleMenu()">×</div>
+        <ul class="menu-links">
+            {% for link in links %}
+            <li><a href="{{ link.url }}">{{ link.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Hamburger Icon -->
+    <div class="hamburger-icon" onclick="toggleMenu()">☰</div>
+
+    <!-- Content Block for Child Templates -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("hamburgerMenu").classList.toggle("open");
+        }
+    </script>
+</body>
+</html>

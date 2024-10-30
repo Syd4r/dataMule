@@ -12,53 +12,6 @@ body {
     color: #333;
 }
 
-/* Hamburger Menu */
-.hamburger-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 250px;
-    height: 100%;
-    background-color: #333;
-    color: #fff;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 100;
-}
-
-.hamburger-menu.open {
-    transform: translateX(0);
-}
-
-.hamburger-menu .close-btn {
-    font-size: 24px;
-    padding: 10px;
-    cursor: pointer;
-    text-align: right;
-}
-
-.hamburger-menu .menu-links {
-    list-style-type: none;
-    padding: 20px;
-}
-
-.hamburger-menu .menu-links li {
-    margin: 15px 0;
-}
-
-.hamburger-menu .menu-links a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 18px;
-}
-
-/* Hamburger Icon */
-.hamburger-icon {
-    font-size: 24px;
-    cursor: pointer;
-    padding: 15px;
-}
-
 /* Welcome Section */
 .welcome-section {
     background: url('images/background.jpg') center/cover no-repeat;
@@ -100,6 +53,7 @@ body {
     text-decoration: none;
     color: inherit;
     transition: background-color 0.3s;
+    margin: auto;
 }
 
 .icon-box:hover {
@@ -123,18 +77,9 @@ body {
         font-size: 20px; /* Smaller font size */
         padding: 8px 16px; /* Adjust padding */
     }
-
-    .hamburger-icon {
-        font-size: 20px; /* Adjust hamburger icon size */
-        padding: 10px; /* Adjust padding */
-    }
 }
 
 @media (max-width: 480px) {
-    .icon-grid {
-        gap: 10px; /* Reduce gap for smaller screens */
-    }
-
     .icon-box {
         padding: 15px; /* Adjust padding */
     }

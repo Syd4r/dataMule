@@ -1,11 +1,6 @@
 body {
     font-family: 'Libre Franklin', sans-serif;
     background-color: #f2f2f2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
 }
 
 h1 {
@@ -73,3 +68,29 @@ button:hover {
     flex-direction: column;
 }
 
+.flash-messages {
+    margin-bottom: 1.5rem;
+}
+
+.flash-message {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    font-size: 1.1rem; /* Normalized flash message text size */
+}
+
+.flash-message.error {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.flash-message.success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.containers {
+    display: grid;
+    justify-content: center;
+    gap: 5vh;
+}
