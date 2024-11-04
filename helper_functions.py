@@ -50,13 +50,13 @@ if __name__ == '__main__':
     )
 
     # Replace the following details with your desired athlete info
-    create_athlete_user( # the two things we check when activating are FirsName+LastName or LastName+DOB
-        first_name="Andrew", #this needed to activate account
-        last_name="Lipton", #this needed to activate account
-        hawkins_id="123",
-        birth_date="09/14/2004", #this needed to activate account
-        gender="M",
-        sport="Football",
-        position="QB",
-        grad_year=2028
-    )
+    # create_athlete_user( # the two things we check when activating are FirsName+LastName or LastName+DOB
+    #     first_name="Andrew", #this needed to activate account
+    #     last_name="Lipton", #this needed to activate account
+    #     hawkins_id="123",
+    #     birth_date="09/14/2004", #this needed to activate account
+    #     gender="M",
+    #     sport="Football",
+    #     position="QB",
+    #     grad_year=2028
+    # )

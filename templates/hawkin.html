@@ -1,6 +1,6 @@
 {% extends "base/base.html" %}
 
-{% block title %}Add Athletes{% endblock %}
+{% block title %}Hawkin Dynamics Data{% endblock %}
 
 {% block extra_head %}
     <meta charset="UTF-8">
@@ -10,9 +10,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.2.0/math.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='hawkin.css') }}">
 {% endblock %}
+
 {% block content %}
     <div class="chart-container">
         <div class="chart-title">Hawkin Dynamics Data</div>
+
+        {% if user_type == "coach" %}
+            <!-- Coach's dropdown to select an athlete -->
+            <label for="athleteSelect" class="stat-label">Select Athlete:</label>
+            <select id="athleteSelect">
+                <option value="">Select Athlete</option>
+            </select>
+        {% elif user_type == "admin" %}
+            <!-- Admin's dropdowns to select a team and then an athlete -->
+            <label for="teamSelect" class="stat-label">Select Team:</label>
+            <select id="teamSelect">
+                <option value="">Select Team</option>
+            </select>
+            <label for="athleteSelect" class="stat-label">Select Athlete:</label>
+            <select id="athleteSelect">
+                <option value="">Select Athlete</option>
+            </select>
+        {% endif %}
         
         <!-- Dropdown to select the stat to visualize -->
         <label for="statSelect" class="stat-label">Select Stat:</label>
@@ -48,30 +67,42 @@
 
 {% block extra_js %}
     <script>
-        const athleteData = JSON.parse('{{ athlete_data | safe }}');
+        let athleteData = JSON.parse('{{ athlete_data | safe }}');
+        console.log(athleteData);
+        const userType = '{{ user_type }}';
 
-        const ignoreKeys = ["id", "athlete_id", "athlete_name", "athlete_teams", "athlete_groups", "athlete_active", "testType_id", "testType_name", "testType_canonicalId", "tag_ids", "tag_names", "segment", "active", "timestamp"];
-
-        // Extract unique stat keys
-        const statKeys = Object.keys(athleteData[0]).filter(key => !ignoreKeys.includes(key));
         const statSelect = document.getElementById("statSelect");
+        const athleteSelect = document.getElementById("athleteSelect");
+        const teamSelect = document.getElementById("teamSelect");
+        
+        let selectedAthleteData = [];
+
+        function loadStatOptions(data) {
+            const ignoreKeys = ["id", "athlete_id", "athlete_name", "athlete_teams", "athlete_groups", "athlete_active", "testType_id", "testType_name", "testType_canonicalId", "tag_ids", "tag_names", "segment", "active", "timestamp"];
+            let statKeys = Object.keys(data[0]).filter(key => !ignoreKeys.includes(key));
+            //ingnore any key that starts with external
+            statKeys = statKeys.filter(key => !key.startsWith("external"));
+            statSelect.innerHTML = '<option value="">Select Stat</option>';
+            statKeys.forEach(stat => {
+                const option = document.createElement("option");
+                option.value = stat;
+                option.textContent = stat;
+                statSelect.appendChild(option);
+            });
+        }
+
         const startDate = document.getElementById("startDate");
         const endDate = document.getElementById("endDate");
 
         // Set the default start and end dates to the first and last test dates
-        const firstTestDate = new Date(athleteData[athleteData.length - 1].timestamp * 1000).toISOString().split("T")[0];
-        const lastTestDate = new Date(athleteData[0].timestamp * 1000).toISOString().split("T")[0];
-        startDate.value = lastTestDate;
-        endDate.value = firstTestDate;
-        
-        // Populate the dropdown options
-        statKeys.forEach(stat => {
-            const option = document.createElement("option");
-            option.value = stat;
-            option.textContent = stat;
-            statSelect.appendChild(option);
-        });
 
+        function getMinMaxTimestamp() {
+            const firstTestDate = new Date(selectedAthleteData[selectedAthleteData.length - 1].timestamp * 1000).toISOString().split("T")[0];
+            const lastTestDate = new Date(selectedAthleteData[0].timestamp * 1000).toISOString().split("T")[0];
+            startDate.value = lastTestDate;
+            endDate.value = firstTestDate;
+        }
+        
         // Set up Chart.js
         const ctx = document.getElementById("statChart").getContext("2d");
         const statChart = new Chart(ctx, {
@@ -105,6 +136,65 @@
                 }
             }
         });
+
+        
+        if (userType !== "athlete") {
+            // Populate the team dropdown on page load
+            if (userType !== "coach") {
+                const teamDropdown = document.getElementById("teamSelect");
+                for (const [key, value] of Object.entries(athleteData)) {
+                    const option = document.createElement("option");
+                    option.value = key;
+                    option.textContent = key;
+                    teamDropdown.appendChild(option);
+                }
+
+                // Event handler when team is selected
+                teamDropdown.addEventListener("change", () => {
+                    const team = teamDropdown.value;
+                    athleteSelect.innerHTML = '<option value="">Select Athlete</option>';
+                    athleteSelect.value = "";
+                    statSelect.value = "";
+                    clearChart();
+                    if (team) {
+                        for (const athlete of athleteData[team]) {
+                            const option = document.createElement("option");
+                            option.textContent = athlete;
+                            athleteSelect.appendChild(option);
+                        }
+                    }
+                });
+            } else {
+                // Populate the athlete dropdown on page load
+                for (const athlete of athleteData) {
+                    const option = document.createElement("option");
+                    option.textContent = athlete;
+                    athleteSelect.appendChild(option);
+                }
+            }
+
+            athleteSelect.addEventListener("change", () => {
+                let athlete = athleteSelect.value;
+                statSelect.value = "";
+                clearChart();
+                athlete = athlete.replace(/ /g, "-");
+                fetch(`/get_athlete_data/${athlete}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        selectedAthleteData = data;
+                        loadStatOptions(data);
+                        getMinMaxTimestamp();
+                        updateChart("null");
+                        getMinMaxTimestamp();
+                    });
+            });
+        } else {
+            selectedAthleteData = athleteData;
+            loadStatOptions(athleteData);
+            getMinMaxTimestamp();
+            updateChart("null");
+            getMinMaxTimestamp();
+        }
 
         // Function to calculate polynomial regression
         function polynomialRegression(x, y, order) {
@@ -216,7 +306,7 @@
                 stat = statChart.data.datasets[0].label;
             }
 
-            const data = athleteData
+            const data = selectedAthleteData
                 .filter(test => {
                     const testDate = test.timestamp * 1000;
                     return (!isNaN(startDate) ? testDate >= startDate : true) && 
@@ -237,7 +327,16 @@
             statChart.update();
 
             // Toggle regression line based on checkbox state
-            toggleRegression(stat);
+            if (statSelect.value) {
+                toggleRegression(stat);
+            }
+        }
+
+        function clearChart() {
+            statChart.data.datasets[0].data = [];
+            statChart.data.datasets[0].label = "";
+            statChart.data.datasets.splice(1);
+            statChart.update();
         }
 
         // Event listener for stat selection
@@ -281,7 +380,7 @@
                         startDate.setFullYear(endDate.getFullYear() - 1);
                         break;
                     case 'all':
-                        startDate = new Date(athleteData[0].timestamp * 1000);
+                        startDate = new Date(selectedAthleteData[0].timestamp * 1000);
                         break;
                 }
 

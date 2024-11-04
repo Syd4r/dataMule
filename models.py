@@ -35,7 +35,6 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
 
 
-
 class Admin(User):
     __mapper_args__ = {
         'polymorphic_identity': 'admin',
@@ -54,9 +53,19 @@ class Peak(User):
 
 
 class Coach(User):
+    __tablename__ = 'coaches'
+
+    id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), unique=True)  # One-to-one relationship with Team
+
+    team = db.relationship('Team', back_populates='coach', uselist=False)
+
     __mapper_args__ = {
         'polymorphic_identity': 'coach',
     }
+
+    def __repr__(self):
+        return f"<Coach {self.first_name} {self.last_name}, Team ID: {self.team_id}>"
 
 
 class Athlete(User):
@@ -89,7 +98,8 @@ class Athlete(User):
         self.sport = sport
         self.position = position
         self.grad_year = grad_year
-    
+
+
 class AlthetePerformance(db.Model):
     date = db.Column(db.Date, nullable=True, default=datetime.utcnow)
     jump_height = db.Column(db.Float, nullable=True)
@@ -100,7 +110,6 @@ class AlthetePerformance(db.Model):
 
     def __repr__(self):
         return f"<Performance for Athlete ID: {self.athlete_id}, Date: {self.date}>"
-    
 
 
 class Team(db.Model):
@@ -109,11 +118,16 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     sport = db.Column(db.String(50), nullable=False)
+    
+    # One-to-one relationship with Coach
+    coach = db.relationship('Coach', back_populates='team', uselist=False)
+
     members = db.relationship('TeamUserAssociation', back_populates="team", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Team {self.name}, Sport: {self.sport}>"
-    
+
+
 class TeamUserAssociation(db.Model):
     __tablename__ = 'team_user_association'
 
@@ -126,6 +140,7 @@ class TeamUserAssociation(db.Model):
 
     def __repr__(self):
         return f"<Association Team ID: {self.team_id}, User ID: {self.user_id}, Role: {self.role}>"
+
 
 class Note(db.Model):
     __tablename__ = 'notes'

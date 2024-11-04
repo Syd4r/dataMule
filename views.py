@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
-from models import db, Athlete
+from models import db, Athlete, Team, TeamUserAssociation
 import os
 from hdforce import AuthManager
 import hdforce as hd
@@ -47,14 +47,14 @@ def get_links(user):
                 "icon": "images/teams.png"
             },
         ]
-    else:
-        links += [
-            {
-                "name": "Hawkins Dynamics",
-                "url": url_for("main.hawkin"),
-                "icon": "images/hawkin.jpg"
-            }
-        ]
+
+    links += [
+        {
+            "name": "Hawkins Dynamics",
+            "url": url_for("main.hawkin"),
+            "icon": "images/hawkin.jpg"
+        }
+    ]
 
     if user.user_type == "super_admin":
         links += [
@@ -75,18 +75,18 @@ def index():
     name = user.first_name + " " + user.last_name
     return render_template("index.html", user_name=name, links=get_links(user))
 
-@main_blueprint.route('/hawkin', methods=['GET'])
-@login_required
-def hawkin():
-    user = current_user
-    user = db.session.query(Athlete).filter_by(first_name="Duke", last_name="Ferrara").first() # REMOVE THIS LINE LATER, JUST FOR TESTING
+def getUserData(user):
     if user.hawkins_database_id == 'notSet':
         name = user.first_name + " " + user.last_name
         all_athletes = hd.GetAthletes()
         athlete = all_athletes.loc[all_athletes['name'] == name]
-        id = athlete['id'].values[0]
-        user.hawkins_database_id = id
-        db.session.commit()
+        try:
+            id = athlete['id'].values[0]
+            user.hawkins_database_id = id
+            db.session.commit()
+        except:
+            print(f"Could not find athlete {name} in Hawkins Dynamics database")
+            return []
     else:
         id = user.hawkins_database_id
 
@@ -94,12 +94,70 @@ def hawkin():
     athlete_data_list = athlete_data.to_dict(orient="records")
     
     athlete_data.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+
     athlete_data_list = athlete_data.to_dict(orient="records")
 
-    # Use json.dumps to serialize Python list to JSON string
-    return render_template("hawkin.html", athlete_data=json.dumps(athlete_data_list), links=get_links(user))
+    return athlete_data_list
 
+@main_blueprint.route('/hawkin', methods=['GET'])
+@login_required
+def hawkin():
+    user = current_user
+    #user = db.session.query(Athlete).filter_by(first_name="Duke", last_name="Ferrara").first() # USE THIS LINE ONLY FOR TESTING
+    if user.user_type == "athlete":
+        data_list = getUserData(user)
+    elif user.user_type == "coach":
+        team = user.team
+        athletes = team.members
+        data_list = []
+        #data_list["Name"] = team.name.replace("'", "")
+        for athlete in athletes:
+            athlete = athlete.user
+            data_list.append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
+    else:
+        all_teams = Team.query.all()
+        # Check if no teams exist in the database
+        if len(all_teams) == 0:
+            all_athletes = Athlete.query.all()
+        
+            for athlete in all_athletes:
+                athlete_team_name = athlete.sport 
+                
+                # Check if the team already exists
+                team = Team.query.filter_by(name=athlete_team_name).first()
+                
+                # If team doesn't exist, create it
+                if not team:
+                    team = Team(name=athlete_team_name, sport=athlete_team_name)
+                    db.session.add(team)
+                    db.session.flush()  # Ensures team.id is available without committing
 
+                # Check if the athlete is already associated with this team
+                association_exists = TeamUserAssociation.query.filter_by(team_id=team.id, user_id=athlete.id).first()
+                
+                # If not already associated, add the athlete to the team
+                if not association_exists:
+                    association = TeamUserAssociation(team_id=team.id, user_id=athlete.id, role="athlete")
+                    db.session.add(association)
+            # Commit all changes to the database in one transaction
+            db.session.commit()
+            all_teams = Team.query.all()
+    
+        data_list = {}
+        for team in all_teams:
+            data_list[team.name.replace("'", "")] = []
+            athletes = team.members
+            for athlete in athletes:
+                athlete = athlete.user
+                data_list[team.name.replace("'", "")].append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
+    return render_template("hawkin.html", athlete_data=json.dumps(data_list), links=get_links(user), user_type=user.user_type)
+
+@main_blueprint.route('/get_athlete_data/<user_name>', methods=['GET'])
+@login_required
+def get_athlete_data(user_name):
+    user = db.session.query(Athlete).filter_by(first_name=user_name.split('-')[0], last_name=user_name.split('-')[1]).first()
+    data_list = getUserData(user)
+    return json.dumps(data_list)
 
 
 @main_blueprint.route('/add_athletes', methods=['GET', 'POST'])
