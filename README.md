@@ -17,6 +17,4 @@ TOKEN_EXPIRATION=
 
 CLOUD_URL=
 
-Also, add the api token to the views.py file in the AuthManager on line 17
-
 Then try running app.py, if port 5000 is taken, switch your port to something else.
