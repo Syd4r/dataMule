@@ -14,7 +14,7 @@ AuthManager(
     region='Americas',
     authMethod='env',
     refreshToken_name='HD_REFRESH_TOKEN',
-    refreshToken='MhYCfE.J65mezBhOCZZuM3ouSf3wfrIE6se4'
+    refreshToken='PUTTOKENHERE'
 )
 
 def get_links(user):
