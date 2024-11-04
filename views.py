@@ -1,11 +1,21 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
 from models import db, Athlete
 import os
+from hdforce import AuthManager
+import hdforce as hd
+import json
+import numpy as np
 
 # Create a blueprint
 main_blueprint = Blueprint('main', __name__)
 
+AuthManager(
+    region='Americas',
+    authMethod='env',
+    refreshToken_name='HD_REFRESH_TOKEN',
+    refreshToken='MhYCfE.J65mezBhOCZZuM3ouSf3wfrIE6se4'
+)
 
 def get_links(user):
     links = [
@@ -65,7 +75,29 @@ def index():
 @main_blueprint.route('/hawkin', methods=['GET'])
 @login_required
 def hawkin():
-    return render_template("hawkin.html", links=get_links(current_user))
+    user = current_user
+    user = db.session.query(Athlete).filter_by(first_name="Duke", last_name="Ferrara").first() # REMOVE THIS LINE LATER, JUST FOR TESTING
+    if user.hawkins_database_id == 'notSet':
+        name = user.first_name + " " + user.last_name
+        all_athletes = hd.GetAthletes()
+        athlete = all_athletes.loc[all_athletes['name'] == name]
+        id = athlete['id'].values[0]
+        user.hawkins_database_id = id
+        db.session.commit()
+    else:
+        id = user.hawkins_database_id
+
+    athlete_data = hd.GetTests(athleteId=id)
+    athlete_data_list = athlete_data.to_dict(orient="records")
+    
+    athlete_data.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+    athlete_data_list = athlete_data.to_dict(orient="records")
+
+    # Use json.dumps to serialize Python list to JSON string
+    return render_template("hawkin.html", athlete_data=json.dumps(athlete_data_list), links=get_links(user))
+
+
+
 
 @main_blueprint.route('/add_athletes', methods=['GET', 'POST'])
 @login_required
