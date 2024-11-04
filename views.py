@@ -6,6 +6,9 @@ from hdforce import AuthManager
 import hdforce as hd
 import json
 import numpy as np
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Create a blueprint
 main_blueprint = Blueprint('main', __name__)
@@ -14,7 +17,7 @@ AuthManager(
     region='Americas',
     authMethod='env',
     refreshToken_name='HD_REFRESH_TOKEN',
-    refreshToken='PUTTOKENHERE'
+    refreshToken=os.getenv('HD_REFRESH_TOKEN')
 )
 
 def get_links(user):

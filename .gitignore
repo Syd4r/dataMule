@@ -1,2 +1,3 @@
 __pycache__/
 mydatabase.db
+.env

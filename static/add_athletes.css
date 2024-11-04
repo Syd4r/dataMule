@@ -45,15 +45,15 @@ textarea {
 
 button {
     font: 1em sans-serif;
-    background-color: #4CAF50;
+    background-color: #007bff;
     color: white;
-    border: 1px solid #4CAF50;
+    border: 1px solid #007bff;
     border-radius: 0.5em;
 }
 
 button:hover {
-    background-color: #45a049;
-    border-color: #45a049;
+    background-color: #0056b3;
+    border-color: #0056b3;
 }
 
 .buttons {
