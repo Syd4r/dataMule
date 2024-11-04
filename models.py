@@ -64,6 +64,7 @@ class Athlete(User):
 
     id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)  # Reuse primary key from User
     hawkins_id = db.Column(db.String(100))
+    hawkins_database_id = db.Column(db.String(100), default='notSet')
     birth_date = db.Column(db.String(50))
     gender = db.Column(db.String(10))
     sport = db.Column(db.String(50))

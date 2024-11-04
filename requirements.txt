@@ -24,3 +24,4 @@ flask_migrate == 2.5.3
 flask_script == 2.0.6
 flask_mail == 0.9.1
 flask_restful == 0.3.8
+hdforce == 1.1.2

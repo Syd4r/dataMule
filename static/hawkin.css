@@ -1,9 +1,144 @@
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f2f2f2;
+/* General Styles */
+
+
+.chart-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid #007bff;
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fc;
+    color: #333;
+}
+
+
+.chart-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+/* Dropdown and Date Inputs */
+.stat-label, .time-label {
+    display: block;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 5px;
+}
+
+#statSelect, .time-input {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    margin-bottom: 15px;
+}
+
+#statSelect:focus, .time-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+/* Time Range Container */
+.time-scale-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+@media (max-width: 600px) {
+    .chart-container {
+        border-left: 0;
+    }
+    .time-scale-container {
+        flex-direction: column;
+    }
+}
+
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Time filter button group styling */
+.time-filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: space-evenly;
+}
+
+.btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.btn:active {
+    background-color: #004494;
+}
+
+/* Base styling for label */
+.toggle-label {
+    display: flex;
     align-items: center;
-    height: 100vh;
-    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333; /* Adjust for light/dark theme */
+    cursor: pointer;
+}
+
+/* Hide the default checkbox */
+.toggle-checkbox {
+    display: none;
+}
+
+/* Custom slider styling */
+.toggle-slider {
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 10px;
+    margin-left: 8px;
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+/* Circle inside the slider */
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+/* Checked state for the slider */
+.toggle-checkbox:checked + .toggle-slider {
+    background-color: #007bff;
+}
+
+.toggle-checkbox:checked + .toggle-slider::before {
+    transform: translateX(20px); /* Move the circle */
 }
