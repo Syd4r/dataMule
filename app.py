@@ -5,6 +5,7 @@ from views import main_blueprint
 from auth import auth_blueprint
 from flask_mail import Mail
 import os
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_default_secret')
@@ -22,6 +23,7 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'datamuleco
 mail = Mail(app)
 
 db.init_app(app)
+migrate = Migrate(app, db)
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'auth.login'
