@@ -46,8 +46,8 @@ if __name__ == '__main__':
     create_admin_user(
         first_name="John",
         last_name="Doe",
-        email="test@test",
-        password="test"
+        email="datamulecolby@gmail.com",
+        password=os.getenv('ADMIN_PASSWORD')
     )
 
     # Replace the following details with your desired athlete info

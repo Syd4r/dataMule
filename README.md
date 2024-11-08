@@ -18,3 +18,7 @@ TOKEN_EXPIRATION=
 CLOUD_URL=
 
 Then try running app.py, if port 5000 is taken, switch your port to something else.
+
+heroku run python -c "from app import db, app; app.app_context().push(); db.create_all()"
+
+Run this command to set up the db in heroku
