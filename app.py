@@ -5,7 +5,8 @@ from views import main_blueprint
 from auth import auth_blueprint
 from flask_mail import Mail
 import os
-from flask_migrate import Migrate
+import pymysql
+pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_default_secret')
@@ -23,7 +24,6 @@ app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'datamuleco
 mail = Mail(app)
 
 db.init_app(app)
-migrate = Migrate(app, db)
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'auth.login'
@@ -37,4 +37,6 @@ app.register_blueprint(main_blueprint)
 app.register_blueprint(auth_blueprint)
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # This will create all tables defined in your models
     app.run(debug=True, port=8080)
