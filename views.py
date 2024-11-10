@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
-from models import db, Athlete, Team, TeamUserAssociation
+from models import db, Athlete, Team, TeamUserAssociation, Coach
 import os
 from hdforce import AuthManager
 import hdforce as hd
@@ -198,6 +198,45 @@ def add_athletes():
     
     return render_template("add_athletes.html", links=get_links(current_user))
 
+@main_blueprint.route('/add_coaches', methods=['GET', 'POST'])
+@login_required
+def add_coaches():
+    if request.method == 'POST' and 'action' in request.form:
+        action = request.form.get('action')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        
+        if first_name:
+            form_data = {
+                'first_name': first_name,
+                'last_name': request.form.get('last_name'),
+                'team': request.form.get('team')
+            }
+            coach = Coach.query.filter_by(first_name=first_name, last_name=last_name).first()
+            try:
+                if action == 'add' and not coach:
+                    team = Team.query.filter_by(name=form_data['team']).first()
+                    db.session.add(Coach(**form_data, team=team))
+                    flash('Coach added successfully!', 'success')
+                elif action == 'delete' and coach:
+                    db.session.delete(coach)
+                    flash('Coach deleted successfully!', 'success')
+                db.session.commit()
+            except Exception:
+                flash(f"Error {action}ing coach!", 'error')
+        else:
+            file = request.files.get('file')
+            if not file or file.filename == '':
+                flash('No file selected!', 'error')
+            else:
+                process_csv(file, action)
+    teams = Team.query.all()
+    #make a dictionary of teams
+    teams_dict = []
+    for team in teams:
+        teams_dict.append({'team_name': team.name})
+    return render_template("add_coaches.html", links=get_links(current_user), teams=teams_dict)
+
 def process_csv(file, action):
     try:
         file.save(file.filename)
@@ -211,19 +250,19 @@ def process_csv(file, action):
                         db.session.add(Athlete(*data))
                     elif action == 'delete' and athlete:
                         db.session.delete(athlete)
+                elif len(data) == 3:
+                    team = Team.query.filter_by(name=data[2]).first()
+                    coach = Coach.query.filter_by(first_name=data[0], last_name=data[1]).first()
+                    if action == 'add' and coach is None:
+                        db.session.add(Coach(first_name=data[0], last_name=data[1], team=team))
+                    elif action == 'delete' and coach:
+                        db.session.delete(coach)
         db.session.commit()
-        flash(f"Athletes {action}ed successfully!", 'success')
+        flash(f"Users {action}ed successfully!", 'success')
         os.remove(file.filename)
     except Exception as e:
-        flash(f"Error {action}ing athletes!", 'error')
+        flash(f"Error {action}ing users!", 'error')
         print(e, data)
-
-
-
-@main_blueprint.route('/add_coaches', methods=['GET'])
-@login_required
-def add_coaches():
-    pass
 
 @main_blueprint.route('/add_teams', methods=['GET'])
 @login_required
