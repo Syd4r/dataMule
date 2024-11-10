@@ -257,17 +257,47 @@ def process_csv(file, action):
                         db.session.add(Coach(first_name=data[0], last_name=data[1], team=team))
                     elif action == 'delete' and coach:
                         db.session.delete(coach)
+
+                elif len(data) == 1: # we like, andy???
+                    team = Team.query.filter_by(name=data[0]).first()
+                    if action == 'add' and team is None:
+                        db.session.add(Team(name=data[0], sport=data[0]))
+                    elif action == 'delete' and team:
+                        db.session.delete(team)
+
         db.session.commit()
-        flash(f"Users {action}ed successfully!", 'success')
+        flash(f"Entities {action}ed successfully!", 'success')
         os.remove(file.filename)
     except Exception as e:
-        flash(f"Error {action}ing users!", 'error')
+        flash(f"Error {action}ing entities!", 'error')
         print(e, data)
 
-@main_blueprint.route('/add_teams', methods=['GET'])
+@main_blueprint.route('/add_teams', methods=['GET', 'POST'])
 @login_required
 def add_teams():
-    pass
+    if request.method == 'POST' and 'action' in request.form:
+        action = request.form.get('action')
+        team_name = request.form.get('team_name')
+        
+        if team_name:
+            team = Team.query.filter_by(name=team_name).first()
+            try:
+                if action == 'add' and not team:
+                    db.session.add(Team(name=team_name, sport=team_name))
+                    flash('Team added successfully!', 'success')
+                elif action == 'delete' and team:
+                    db.session.delete(team)
+                    flash('Team deleted successfully!', 'success')
+                db.session.commit()
+            except Exception:
+                flash(f"Error {action}ing team!", 'error')
+        else:
+            file = request.files.get('file')
+            if not file or file.filename == '':
+                flash('No file selected!', 'error')
+            else:
+                process_csv(file, action)
+    return render_template("add_teams.html", links=get_links(current_user))
 
 @main_blueprint.route('/add_admins', methods=['GET'])
 @login_required
