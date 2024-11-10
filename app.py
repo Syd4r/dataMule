@@ -11,6 +11,10 @@ pymysql.install_as_MySQLdb()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_default_secret')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace("postgres", "postgresql", 1)
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': 10,  # Set your desired pool size here
+    'max_overflow': 5,  # Optional
+}
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'

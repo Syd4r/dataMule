@@ -46,11 +46,3 @@
     cursor: pointer;
     padding: 15px;
 }
-
-/* Media Queries */
-@media (max-width: 768px) {
-    .hamburger-icon {
-        font-size: 20px; /* Adjust hamburger icon size */
-        padding: 10px; /* Adjust padding */
-    }
-}
