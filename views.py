@@ -108,37 +108,72 @@ def hawkin():
         data_list = getUserData(user)
     elif user.user_type == "coach":
         team = user.team
-        team_data = hd.GetTests(teamId=team.hawkins_database_id)
-        team_data.replace([np.nan, np.inf, -np.inf], None, inplace=True)
-        data_list = team_data.to_dict(orient="records")
+        athletes = team.members
+        data_list = []
+        #data_list["Name"] = team.name.replace("'", "")
+        for athlete in athletes:
+            athlete = athlete.user
+            data_list.append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
 
-    else:
+    else: # admin or super admin
         all_teams = Team.query.all()
         # Check if no teams exist in the database
-        if len(all_teams) == 0:
+        if len(all_teams) == 0: #if there are no teams in the database, we need to add them. Doing this manually would be a pain, so we will do it automatically, this literally will only happen once
             all_athletes = Athlete.query.all()
-            hd_teams = hd.GetTeams()
+            hd_teams = hd.GetTeams() #this is a pandas dataframe
+            #theres a change that teams have spaces at the end of their names, so we need to strip them
+            hd_teams['name'] = hd_teams['name'].str.strip()
+            #print(hd_teams)
+            allteamnames = {}
+            teams = {}
         
             for athlete in all_athletes:
-                athlete_team_name = athlete.sport 
-                
-                # Check if the team already exists
-                team = Team.query.filter_by(name=athlete_team_name).first()
-                
-                # If team doesn't exist, create it
-                if not team:
-                    team_id = hd_teams.loc[hd_teams['name'] == athlete_team_name]['id'].values[0]
-                    team = Team(name=athlete_team_name, sport=athlete_team_name, hawkins_database_id=team_id)
-                    db.session.add(team)
-                    db.session.flush()  # Ensures team.id is available without committing
+                athlete_team_name = athlete.sport
+                # there are inconsistencies in the database vs the athlete data, so we need to standardize the team names
+                if "Lacrosse" in athlete_team_name:
+                        athlete_team_name = athlete_team_name.replace("Lacrosse", "LAX")
+                elif "Women's Field Hockey" in athlete_team_name:
+                    athlete_team_name = "Field Hockey"
+                elif "Alpine Skiing" in athlete_team_name:
+                    if athlete.gender == "M":
+                        athlete_team_name = "Men's Alpiine" #this is not my typo, this is how it is in the database
+                    else:
+                        athlete_team_name = "Women's Alpine"
+                elif "Swimming & Diving" in athlete_team_name:
+                    if athlete.gender == "M":
+                        athlete_team_name = "Men's Swim & Dive"
+                    else:
+                        athlete_team_name = "Women's Swim & Dive"
+                elif "Women's Volleyball" in athlete_team_name:
+                    athlete_team_name = "Volleyball"
+                elif "Nordic Skiing" in athlete_team_name:
+                    if athlete.gender == "M":
+                        athlete_team_name = "Men's Nordic"
+                    else:
+                        athlete_team_name = "Women's Nordic"
+                if athlete_team_name not in allteamnames.keys():
+                    try:
+                        allteamnames[athlete_team_name] = [athlete]
+                        #print(athlete_team_name)
+                        #replace Lacrosse with LAX in any part of the string
+                        hawkins_database_id = hd_teams.loc[hd_teams['name'] == athlete_team_name]['id'].values[0]
+                        #print(hawkins_database_id)
+                        team = Team(name=athlete_team_name, sport=athlete_team_name, hawkins_database_id=hawkins_database_id)
+                        teams[athlete_team_name] = team
+                        association = TeamUserAssociation(team=team, user=athlete)
+                        db.session.add(team)
+                        db.session.add(association)
+                    except:
+                        print(f"Could not find team {athlete_team_name} in Hawkins Dynamics database")
+                else:
+                    try:
+                        allteamnames[athlete_team_name].append(athlete)
+                        association = TeamUserAssociation(team=teams[athlete_team_name], user=athlete)
+                        db.session.add(association)
+                    except:
+                        pass
 
-                # Check if the athlete is already associated with this team
-                association_exists = TeamUserAssociation.query.filter_by(team_id=team.id, user_id=athlete.id).first()
                 
-                # If not already associated, add the athlete to the team
-                if not association_exists:
-                    association = TeamUserAssociation(team_id=team.id, user_id=athlete.id, role="athlete")
-                    db.session.add(association)
             # Commit all changes to the database in one transaction
             db.session.commit()
             all_teams = Team.query.all()
