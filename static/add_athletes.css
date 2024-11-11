@@ -1,11 +1,11 @@
 body {
     font-family: 'Libre Franklin', sans-serif;
-    background-color: #f2f2f2;
+    background-color: var(--secondary-background-color);
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    color: var(--text-color);
 }
 
 form {
@@ -14,7 +14,7 @@ form {
     padding: 1em;
     border: 1px solid #CCC;
     border-radius: 1em;
-    background-color: #f9f9f9;
+    background-color: var(--input-background-color);
 }
 
 form div + div {
@@ -32,10 +32,12 @@ input, textarea {
     width: 300px;
     box-sizing: border-box;
     border: 1px solid #999;
+    background-color: var(--input-background-color);
+    color: var(--text-color);
 }
 
 input:focus, textarea:focus {
-    border-color: #000;
+    border-color: var(--button-background-color);
 }
 
 textarea {
@@ -45,15 +47,15 @@ textarea {
 
 button {
     font: 1em sans-serif;
-    background-color: #007bff;
-    color: white;
-    border: 1px solid #007bff;
+    background-color: var(--button-background-color);
+    color: var(--text-color);
+    border: 1px solid var(--button-background-color);
     border-radius: 0.5em;
 }
 
 button:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
+    background-color: var(--button-hover-background-color);
+    border-color: var(--button-hover-background-color);
 }
 
 .buttons {
@@ -76,7 +78,9 @@ button:hover {
     padding: 1rem;
     margin-bottom: 1rem;
     border-radius: 6px;
-    font-size: 1.1rem; /* Normalized flash message text size */
+    font-size: 1.1rem;
+    background-color: var(--input-background-color);
+    color: var(--text-color);
 }
 
 .flash-message.error {
@@ -100,4 +104,6 @@ select {
     width: 300px;
     box-sizing: border-box;
     border: 1px solid #999;
+    background-color: var(--input-background-color);
+    color: var(--text-color);
 }
