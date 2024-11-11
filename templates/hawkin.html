@@ -165,11 +165,19 @@
                     }
                 });
             } else {
+                //add an option to view the entire team
+                const option = document.createElement("option");
+                option.textContent = "All Athletes";
+                athleteSelect.appendChild(option);
+
                 // Populate the athlete dropdown on page load
                 for (const athlete of athleteData) {
-                    const option = document.createElement("option");
-                    option.textContent = athlete;
-                    athleteSelect.appendChild(option);
+                    //check if an option already exists
+                    if (!athleteSelect.innerHTML.includes(athlete)) {
+                        const option = document.createElement("option");
+                        option.textContent = athlete;
+                        athleteSelect.appendChild(option);
+                    }
                 }
             }
 
