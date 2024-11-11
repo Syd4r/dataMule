@@ -1,3 +1,5 @@
 __pycache__/
 mydatabase.db
 .env
+requirements.txt
+
