@@ -108,17 +108,16 @@ def hawkin():
         data_list = getUserData(user)
     elif user.user_type == "coach":
         team = user.team
-        athletes = team.members
-        data_list = []
-        #data_list["Name"] = team.name.replace("'", "")
-        for athlete in athletes:
-            athlete = athlete.user
-            data_list.append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
+        team_data = hd.GetTests(teamId=team.hawkins_database_id)
+        team_data.replace([np.nan, np.inf, -np.inf], None, inplace=True)
+        data_list = team_data.to_dict(orient="records")
+
     else:
         all_teams = Team.query.all()
         # Check if no teams exist in the database
         if len(all_teams) == 0:
             all_athletes = Athlete.query.all()
+            hd_teams = hd.GetTeams()
         
             for athlete in all_athletes:
                 athlete_team_name = athlete.sport 
@@ -128,7 +127,8 @@ def hawkin():
                 
                 # If team doesn't exist, create it
                 if not team:
-                    team = Team(name=athlete_team_name, sport=athlete_team_name)
+                    team_id = hd_teams.loc[hd_teams['name'] == athlete_team_name]['id'].values[0]
+                    team = Team(name=athlete_team_name, sport=athlete_team_name, hawkins_database_id=team_id)
                     db.session.add(team)
                     db.session.flush()  # Ensures team.id is available without committing
 
