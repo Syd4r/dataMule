@@ -1,0 +1,48 @@
+{% extends "base/base.html" %}
+
+{% block title %}Add Teams{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='add_athletes.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="add-athletes-container">
+        <h1>Add/Delete Teams</h1>
+
+        <!-- Flash messages section -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="containers">
+            <!-- Form to add or delete a single team -->
+            <form action="{{ url_for('main.add_teams') }}" method="post">
+                <div class="inputs">
+                    <input type="text" name="team_name" placeholder="Team Name" required>
+                </div>
+                <div class="buttons">
+                    <button type="submit" name="action" value="add">Add Team</button>
+                    <button type="submit" name="action" value="delete">Delete Team</button>
+                </div>
+            </form>
+            
+            <!-- Form to add or delete teams via CSV file -->
+            <form action="{{ url_for('main.add_teams') }}" method="post" enctype="multipart/form-data">
+                <div class="inputs">
+                    <input type="file" name="file" accept=".csv" required>
+                </div>
+                <div class="buttons">
+                    <button type="submit" name="action" value="add">Add Teams</button>
+                    <button type="submit" name="action" value="delete">Delete Teams</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

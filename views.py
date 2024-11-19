@@ -114,31 +114,66 @@ def hawkin():
         for athlete in athletes:
             athlete = athlete.user
             data_list.append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
-    else:
+
+    else: # admin or super admin
         all_teams = Team.query.all()
         # Check if no teams exist in the database
-        if len(all_teams) == 0:
+        if len(all_teams) == 0: #if there are no teams in the database, we need to add them. Doing this manually would be a pain, so we will do it automatically, this literally will only happen once
             all_athletes = Athlete.query.all()
+            hd_teams = hd.GetTeams() #this is a pandas dataframe
+            #theres a change that teams have spaces at the end of their names, so we need to strip them
+            hd_teams['name'] = hd_teams['name'].str.strip()
+            #print(hd_teams)
+            allteamnames = {}
+            teams = {}
         
             for athlete in all_athletes:
-                athlete_team_name = athlete.sport 
-                
-                # Check if the team already exists
-                team = Team.query.filter_by(name=athlete_team_name).first()
-                
-                # If team doesn't exist, create it
-                if not team:
-                    team = Team(name=athlete_team_name, sport=athlete_team_name)
-                    db.session.add(team)
-                    db.session.flush()  # Ensures team.id is available without committing
+                athlete_team_name = athlete.sport
+                # there are inconsistencies in the database vs the athlete data, so we need to standardize the team names
+                if "Lacrosse" in athlete_team_name:
+                        athlete_team_name = athlete_team_name.replace("Lacrosse", "LAX")
+                elif "Women's Field Hockey" in athlete_team_name:
+                    athlete_team_name = "Field Hockey"
+                elif "Alpine Skiing" in athlete_team_name:
+                    if athlete.gender == "M":
+                        athlete_team_name = "Men's Alpiine" #this is not my typo, this is how it is in the database
+                    else:
+                        athlete_team_name = "Women's Alpine"
+                elif "Swimming & Diving" in athlete_team_name:
+                    if athlete.gender == "M":
+                        athlete_team_name = "Men's Swim & Dive"
+                    else:
+                        athlete_team_name = "Women's Swim & Dive"
+                elif "Women's Volleyball" in athlete_team_name:
+                    athlete_team_name = "Volleyball"
+                elif "Nordic Skiing" in athlete_team_name:
+                    if athlete.gender == "M":
+                        athlete_team_name = "Men's Nordic"
+                    else:
+                        athlete_team_name = "Women's Nordic"
+                if athlete_team_name not in allteamnames.keys():
+                    try:
+                        allteamnames[athlete_team_name] = [athlete]
+                        #print(athlete_team_name)
+                        #replace Lacrosse with LAX in any part of the string
+                        hawkins_database_id = hd_teams.loc[hd_teams['name'] == athlete_team_name]['id'].values[0]
+                        #print(hawkins_database_id)
+                        team = Team(name=athlete_team_name, sport=athlete_team_name, hawkins_database_id=hawkins_database_id)
+                        teams[athlete_team_name] = team
+                        association = TeamUserAssociation(team=team, user=athlete)
+                        db.session.add(team)
+                        db.session.add(association)
+                    except:
+                        print(f"Could not find team {athlete_team_name} in Hawkins Dynamics database")
+                else:
+                    try:
+                        allteamnames[athlete_team_name].append(athlete)
+                        association = TeamUserAssociation(team=teams[athlete_team_name], user=athlete)
+                        db.session.add(association)
+                    except:
+                        pass
 
-                # Check if the athlete is already associated with this team
-                association_exists = TeamUserAssociation.query.filter_by(team_id=team.id, user_id=athlete.id).first()
                 
-                # If not already associated, add the athlete to the team
-                if not association_exists:
-                    association = TeamUserAssociation(team_id=team.id, user_id=athlete.id, role="athlete")
-                    db.session.add(association)
             # Commit all changes to the database in one transaction
             db.session.commit()
             all_teams = Team.query.all()
@@ -257,17 +292,47 @@ def process_csv(file, action):
                         db.session.add(Coach(first_name=data[0], last_name=data[1], team=team))
                     elif action == 'delete' and coach:
                         db.session.delete(coach)
+
+                elif len(data) == 1: # we like, andy???
+                    team = Team.query.filter_by(name=data[0]).first()
+                    if action == 'add' and team is None:
+                        db.session.add(Team(name=data[0], sport=data[0]))
+                    elif action == 'delete' and team:
+                        db.session.delete(team)
+
         db.session.commit()
-        flash(f"Users {action}ed successfully!", 'success')
+        flash(f"Entities {action}ed successfully!", 'success')
         os.remove(file.filename)
     except Exception as e:
-        flash(f"Error {action}ing users!", 'error')
+        flash(f"Error {action}ing entities!", 'error')
         print(e, data)
 
-@main_blueprint.route('/add_teams', methods=['GET'])
+@main_blueprint.route('/add_teams', methods=['GET', 'POST'])
 @login_required
 def add_teams():
-    pass
+    if request.method == 'POST' and 'action' in request.form:
+        action = request.form.get('action')
+        team_name = request.form.get('team_name')
+        
+        if team_name:
+            team = Team.query.filter_by(name=team_name).first()
+            try:
+                if action == 'add' and not team:
+                    db.session.add(Team(name=team_name, sport=team_name))
+                    flash('Team added successfully!', 'success')
+                elif action == 'delete' and team:
+                    db.session.delete(team)
+                    flash('Team deleted successfully!', 'success')
+                db.session.commit()
+            except Exception:
+                flash(f"Error {action}ing team!", 'error')
+        else:
+            file = request.files.get('file')
+            if not file or file.filename == '':
+                flash('No file selected!', 'error')
+            else:
+                process_csv(file, action)
+    return render_template("add_teams.html", links=get_links(current_user))
 
 @main_blueprint.route('/add_admins', methods=['GET'])
 @login_required

@@ -118,6 +118,7 @@ class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     sport = db.Column(db.String(50), nullable=False)
+    hawkins_database_id = db.Column(db.String(100), default='notSet')
     
     # One-to-one relationship with Coach
     coach = db.relationship('Coach', back_populates='team', uselist=False)
@@ -126,7 +127,6 @@ class Team(db.Model):
 
     def __repr__(self):
         return f"<Team {self.name}, Sport: {self.sport}>"
-
 
 class TeamUserAssociation(db.Model):
     __tablename__ = 'team_user_association'

@@ -7,9 +7,9 @@
 
 body {
     font-family: 'Libre Franklin', sans-serif;
-    /* Dynamic font size */
     font-size: 1.5em;
-    color: #333;
+    color: var(--text-color);
+    background-color: var(--background-color);
 }
 
 /* Welcome Section */
@@ -20,16 +20,17 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: white;
+    color: var(--text-color);
     position: relative;
 }
 
 .welcome-section h1 {
-    font-size: 24px; /* Reduced font size for mobile */
+    font-size: 24px;
     font-weight: bold;
     background: rgba(0, 0, 0, 0.5);
     padding: 10px 20px;
     border-radius: 10px;
+    color: #ffffff;
 }
 
 /* Icon Grid */
@@ -41,17 +42,17 @@ body {
     padding-right: 10vw;
     padding-top: 10vh;
     padding-bottom: 10vh;
-    background-color: #ffffff;
+    background-color: var(--input-background-color);
     justify-items: center;
 }
 
 .icon-box {
-    background-color: #e3e3ef;
+    background-color: var(--secondary-background-color);
     border-radius: 10px;
     padding: 20px;
     text-align: center;
     text-decoration: none;
-    color: inherit;
+    color: var(--text-color);
     transition: background-color 0.3s;
     margin: auto;
 }
@@ -61,26 +62,25 @@ body {
 }
 
 .icon-box img {
-    width: 100%; /* Responsive image */
-    height: auto; /* Maintain aspect ratio */
+    width: 100%;
+    height: auto;
     margin-bottom: 10px;
 }
-
 
 /* Media Queries */
 @media (max-width: 768px) {
     .welcome-section {
-        height: 200px; /* Reduce height on smaller screens */
+        height: 200px;
     }
 
     .welcome-section h1 {
-        font-size: 20px; /* Smaller font size */
-        padding: 8px 16px; /* Adjust padding */
+        font-size: 20px;
+        padding: 8px 16px;
     }
 }
 
 @media (max-width: 480px) {
     .icon-box {
-        padding: 15px; /* Adjust padding */
+        padding: 15px;
     }
 }
