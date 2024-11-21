@@ -141,7 +141,6 @@ class TeamUserAssociation(db.Model):
     def __repr__(self):
         return f"<Association Team ID: {self.team_id}, User ID: {self.user_id}, Role: {self.role}>"
 
-
 class Note(db.Model):
     __tablename__ = 'notes'
 
