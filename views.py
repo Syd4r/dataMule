@@ -24,8 +24,7 @@ def get_links(user):
     links = [
         {
             "name": "Home",
-            "url": url_for("main.index"),
-            "icon": "NONE"
+            "url": url_for("main.index")
         }
     ]
 
@@ -56,14 +55,6 @@ def get_links(user):
         }
     ]
 
-    links += [
-        {
-            "name": "Logout",
-            "url": url_for("auth.logout"),
-            "icon": "images/hawkin.jpg"
-        }
-    ]
-
     if user.user_type == "super_admin":
         links += [
             {
@@ -72,6 +63,13 @@ def get_links(user):
                 "icon": "images/admins.png"
             }
         ]
+
+    links += [
+        {
+            "name": "Logout",
+            "url": url_for("auth.logout")
+        }
+    ]
     
     return links
 
