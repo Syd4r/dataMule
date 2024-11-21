@@ -26,7 +26,6 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'datamulecolby@gmail.com')
 
 mail = Mail(app)
-
 db.init_app(app)
 
 login_manager = LoginManager(app)
@@ -37,7 +36,7 @@ def load_user(id):
     return User.query.get(int(id))
 
 # Register blueprint for routes
-app.register_blueprint(main_blueprint)
+app.register_blueprint(main_blueprint)  
 app.register_blueprint(auth_blueprint)
 
 if __name__ == '__main__':

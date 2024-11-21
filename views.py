@@ -208,8 +208,11 @@ def get_athlete_data(user_name):
 def add_athletes():
     if request.method == 'POST' and 'action' in request.form:
         action = request.form.get('action')
+
         hawkins_id = request.form.get('hawkins_id')
-        
+        file = request.files.get('file')
+        delete_athlete = request.form.get('delete_athlete')
+
         if hawkins_id:
             form_data = {
                 'hawkins_id': hawkins_id,
@@ -232,14 +235,33 @@ def add_athletes():
                 db.session.commit()
             except Exception:
                 flash(f"Error {action}ing athlete!", 'error')
-        else:
-            file = request.files.get('file')
-            if not file or file.filename == '':
+
+        elif file:
+            if file.filename == '':
                 flash('No file selected!', 'error')
             else:
                 process_csv(file, action)
+
+        elif delete_athlete:
+            athlete = Athlete.query.filter_by(hawkins_id=delete_athlete).first()
+            try:
+                if action == 'delete-dropdown' and athlete:
+                    db.session.delete(athlete)
+                    flash('Athlete deleted successfully!', 'success')
+                db.session.commit()
+            except Exception:
+                flash(f'Error {action}ing athlete!', 'error')
+
+    raw_athletes = Athlete.query.all()
+    athletes = []
+
+    for raw_athlete in raw_athletes:
+        athletes.append({
+            'name': f'{raw_athlete.first_name} {raw_athlete.last_name}',
+            'id': raw_athlete.hawkins_id
+        })
     
-    return render_template("add_athletes.html", links=get_links(current_user))
+    return render_template("add_athletes.html", links=get_links(current_user), athletes=athletes)
 
 @main_blueprint.route('/add_coaches', methods=['GET', 'POST'])
 @login_required
@@ -248,6 +270,10 @@ def add_coaches():
         action = request.form.get('action')
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
+
+        file = request.files.get('file')
+
+        delete_coach = request.form.get(delete_coach)
         
         if first_name:
             form_data = {
@@ -267,18 +293,38 @@ def add_coaches():
                 db.session.commit()
             except Exception:
                 flash(f"Error {action}ing coach!", 'error')
-        else:
-            file = request.files.get('file')
-            if not file or file.filename == '':
+        elif file:
+            if file.filename == '':
                 flash('No file selected!', 'error')
             else:
                 process_csv(file, action)
+
+        elif delete_coach:
+            coach = Coach.query.filter_by(id=delete_coach).first()
+            try:
+                if action == 'delete-dropdown' and coach:
+                    db.session.delete(coach)
+                    flash('Coach deleted successfully!', 'success')
+                db.session.commit()
+            except Exception:
+                flash(f'Error {action}ing coach!', 'error')
+
     teams = Team.query.all()
     #make a dictionary of teams
     teams_dict = []
     for team in teams:
         teams_dict.append({'team_name': team.name})
-    return render_template("add_coaches.html", links=get_links(current_user), teams=teams_dict)
+
+    raw_coaches = Coach.query.all()
+    coaches = []
+
+    for raw_coach in raw_coaches:
+        coaches.append({
+            'name': f'{raw_coach.first_name} {raw_coach.last_name}',
+            'id': raw_coach.id
+        })
+
+    return render_template("add_coaches.html", links=get_links(current_user), teams=teams_dict, coaches=coaches)
 
 def process_csv(file, action):
     try:
@@ -320,7 +366,10 @@ def process_csv(file, action):
 def add_teams():
     if request.method == 'POST' and 'action' in request.form:
         action = request.form.get('action')
+
         team_name = request.form.get('team_name')
+        file = request.files.get('file')
+        delete_team = request.form.get('delete_team')
         
         if team_name:
             team = Team.query.filter_by(name=team_name).first()
@@ -334,13 +383,32 @@ def add_teams():
                 db.session.commit()
             except Exception:
                 flash(f"Error {action}ing team!", 'error')
-        else:
-            file = request.files.get('file')
-            if not file or file.filename == '':
+        elif file:
+            if file.filename == '':
                 flash('No file selected!', 'error')
             else:
                 process_csv(file, action)
-    return render_template("add_teams.html", links=get_links(current_user))
+
+        elif delete_team:
+            team = Team.query.filter_by(id=delete_team).first()
+            try:
+                if action == 'delete-dropdown' and team:
+                    db.session.delete(team)
+                    flash('Team deleted successfully!', 'success')
+                db.session.commit()
+            except Exception:
+                flash(f'Error {action}ing team!', 'error')
+
+    raw_teams = Team.query.all()
+    teams = []
+
+    for raw_team in raw_teams:
+        teams.append({
+            'name': raw_team.name,
+            'id': raw_team.id
+        })
+
+    return render_template("add_teams.html", links=get_links(current_user), teams=teams)
 
 @main_blueprint.route('/add_admins', methods=['GET'])
 @login_required

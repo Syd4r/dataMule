@@ -32,6 +32,20 @@
                     <button type="submit" name="action" value="delete">Delete Team</button>
                 </div>
             </form>
+
+            <form action="{{ url_for('main.add_teams') }}" method="post">
+                <div class="inputs">
+                    <select name="delete_team">
+                        {% for team in teams %}
+                            <option value="{{ team.id }}">{{ team.name }} (ID: {{ team.id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="buttons">
+                    <button type="submit" name="action" value="delete-dropdown">Delete Team</button>
+                </div>
+            </form>
             
             <!-- Form to add or delete teams via CSV file -->
             <form action="{{ url_for('main.add_teams') }}" method="post" enctype="multipart/form-data">
