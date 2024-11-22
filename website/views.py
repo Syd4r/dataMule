@@ -308,7 +308,7 @@ def add_coaches():
 
         file = request.files.get('file')
 
-        delete_coach = request.form.get(delete_coach)
+        delete_coach = request.form.get('delete_coach')
         
         if first_name:
             form_data = {
