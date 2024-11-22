@@ -433,6 +433,11 @@ def process_csv(file, action):
         with open(file.filename, 'r') as f:
             lines = [line.split(',') for line in f.readlines()[1:]]
             for data in lines:
+                #print(data)
+                if data == ['\n']:
+                    continue
+                if ".csv" in data[0]:
+                    break
                 if len(data) == 8:
                     data = [x.strip().replace('"', '').replace('\n', '') for x in data]
                     athlete = Athlete.query.filter_by(hawkins_id=data[0]).first()
