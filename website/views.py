@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
 from website import db
-from models import Athlete, Team, TeamUserAssociation, Coach
+from .models import Athlete, Team, TeamUserAssociation, Coach
 import os
 from hdforce import AuthManager
 import hdforce as hd
