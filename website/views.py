@@ -82,6 +82,36 @@ def index():
     name = user.first_name + " " + user.last_name
     return render_template("index.html", user_name=name, links=get_links(user))
 
+important_data = ['Braking RFD(N/s)','Jump Height(m)','mRSI','Peak Relative Propulsive Power(W/kg)']
+
+def averagePoints(data):
+    return_data = []
+    iter = 0
+    while (iter < len(data) - 1):
+        return_data.append({})
+        return_data[-1]['timestamp'] = data[iter]['timestamp']
+        return_data[-1]['id'] = data[iter]['id']
+        return_data[-1]['athlete_id'] = data[iter]['athlete_id']
+        return_data[-1]['athlete_name'] = data[iter]['athlete_name']
+        if abs(data[iter]['timestamp'] - data[iter+1]['timestamp']) < 36000:
+            for data_point in important_data:
+                if data[iter][data_point] != None and data[iter+1][data_point] != None:
+                    return_data[-1][data_point] = (data[iter][data_point] + data[iter+1][data_point]) / 2
+                elif data[iter][data_point] == None and data[iter+1][data_point] != None:
+                    return_data[-1][data_point] = data[iter+1][data_point]
+                elif data[iter][data_point] != None and data[iter+1][data_point] == None:
+                    return_data[-1][data_point] = data[iter][data_point]
+                else:
+                    return_data[-1][data_point] = None
+            iter += 2
+        else:
+            #`print(data[iter]['timestamp'], data[iter+1]['timestamp'])
+            for data_point in important_data:
+                return_data[-1][data_point] = data[iter][data_point]
+            iter += 1
+    #print(return_data)
+    return return_data
+
 def getUserData(user):
     if user.hawkins_database_id == 'notSet':
         name = user.first_name + " " + user.last_name
@@ -98,12 +128,11 @@ def getUserData(user):
         id = user.hawkins_database_id
 
     athlete_data = hd.GetTests(athleteId=id)
-    athlete_data = athlete_data[['Braking RFD(N/s)','Jump Height(m)','mRSI','Peak Relative Propulsive Power(W/kg)']]
     athlete_data.replace([np.nan, np.inf, -np.inf], None, inplace=True)
 
     athlete_data_list = athlete_data.to_dict(orient="records")
 
-    return athlete_data_list
+    return averagePoints(athlete_data_list)
 
 def fix_team_names(athlete_team_name, gender):
     # there are inconsistencies in the database vs the athlete data, so we need to standardize the team names
