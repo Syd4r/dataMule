@@ -45,14 +45,6 @@ def get_links(user):
             },
         ]
 
-    links += [
-        {
-            "name": "Hawkins Dynamics",
-            "url": url_for("main.hawkin"),
-            "icon": "images/hawkin.jpg"
-        }
-    ]
-
     if user.user_type == "super_admin":
         links += [
             {
@@ -61,6 +53,14 @@ def get_links(user):
                 "icon": "images/admins.png"
             }
         ]
+
+    links += [
+        {
+            "name": "Hawkins Dynamics",
+            "url": url_for("main.hawkin"),
+            "icon": "images/hawkin.jpg"
+        }
+    ]
 
     links += [
         {
