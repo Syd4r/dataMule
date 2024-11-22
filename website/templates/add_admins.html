@@ -1,0 +1,63 @@
+{% extends "base/base.html" %}
+
+{% block title %}Add Admins{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='add_athletes.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="add-athletes-container">
+        <h1>Add/Delete Admins</h1>
+
+        <!-- Flash messages section -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <div class="containers">
+            <!-- Form to add or delete a single athlete -->
+            <form action="{{ url_for('main.add_admins') }}" method="post">
+                <div class="inputs">
+                    <input type="text" name="first_name" placeholder="First Name" required>
+                    <input type="text" name="last_name" placeholder="Last Name" required>
+                </div>
+                <div class="buttons">
+                    <button type="submit" name="action" value="add">Add Admin</button>
+                    <button type="submit" name="action" value="delete">Delete Admin</button>
+                </div>
+            </form>
+
+            <form action="{{ url_for('main.add_admins') }}" method="post">
+                <div class="inputs">
+                    <select name="delete_admin">
+                        {% for admin in admins %}
+                            <option value="{{ admin.id }}">{{ admin.name }} (ID: {{ admin.id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="buttons">
+                    <button type="submit" name="action" value="delete-dropdown">Delete Admin</button>
+                </div>
+            </form>
+            
+            <!-- Form to add or delete athletes via CSV file -->
+            <form action="{{ url_for('main.add_admins') }}" method="post" enctype="multipart/form-data">
+                <div class="inputs">
+                    <input type="file" name="file" accept=".csv" required>
+                </div>
+                <div class="buttons">
+                    <button type="submit" name="action" value="add">Add Admins</button>
+                    <button type="submit" name="action" value="delete">Delete Admins</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
 from website import db
-from .models import Athlete, Team, TeamUserAssociation, Coach
+from .models import Athlete, Team, TeamUserAssociation, Coach, Admin
 import os
 from hdforce import AuthManager
 import hdforce as hd
@@ -361,6 +361,62 @@ def add_coaches():
 
     return render_template("add_coaches.html", links=get_links(current_user), teams=teams_dict, coaches=coaches)
 
+@main_blueprint.route('/add_admins', methods=['GET', 'POST'])
+@login_required
+def add_admins():
+    if request.method == 'POST' and 'action' in request.form:
+        action = request.form.get('action')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+
+        file = request.files.get('file')
+
+        delete_admin = request.form.get('delete_admin')
+        
+        if first_name:
+            form_data = {
+                'first_name': first_name,
+                'last_name': request.form.get('last_name')
+            }
+
+            admin = Admin.query.filter_by(first_name=first_name, last_name=last_name).first()
+            try:
+                if action == 'add' and not admin:
+                    db.session.add(Admin(**form_data))
+                    flash('Admin added successfully!', 'success')
+                elif action == 'delete' and admin:
+                    db.session.delete(admin)
+                    flash('Admin deleted successfully!', 'success')
+                db.session.commit()
+            except Exception:
+                flash(f"Error {action}ing admin!", 'error')
+        elif file:
+            if file.filename == '':
+                flash('No file selected!', 'error')
+            else:
+                process_csv(file, action)
+
+        elif delete_admin:
+            admin = Admin.query.filter_by(id=delete_admin).first()
+            try:
+                if action == 'delete-dropdown' and admin:
+                    db.session.delete(admin)
+                    flash('Admin deleted successfully!', 'success')
+                db.session.commit()
+            except Exception:
+                flash(f'Error {action}ing admin!', 'error')
+
+    raw_admins = Admin.query.all()
+    admins = []
+
+    for raw_admin in raw_admins:
+        admins.append({
+            'name': f'{raw_admin.first_name} {raw_admin.last_name}',
+            'id': raw_admin.id
+        })
+
+    return render_template("add_admins.html", links=get_links(current_user), admins=admins)
+
 def process_csv(file, action):
     try:
         file.save(file.filename)
@@ -444,8 +500,3 @@ def add_teams():
         })
 
     return render_template("add_teams.html", links=get_links(current_user), teams=teams)
-
-@main_blueprint.route('/add_admins', methods=['GET'])
-@login_required
-def add_admins():
-    pass
