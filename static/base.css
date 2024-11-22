@@ -39,13 +39,38 @@ button:hover {
     display: flex;
     align-items: center;
     background-color: var(--input-background-color);
-    padding: 5px 10px;
-    border-radius: 5px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--button-background-color);
+    font-family: 'Arial', sans-serif;
+    text-align: center; /* Ensure proper alignment */
+    width: fit-content; /* Ensure it doesn't stretch unnecessarily */
 }
+
 
 .dark-mode-toggle label {
     margin-left: 8px;
     color: var(--text-color);
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.dark-mode-toggle input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border: 2px solid var(--button-background-color);
+    border-radius: 50%;
+    background: var(--background-color);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.dark-mode-toggle input[type="checkbox"]:checked {
+    background: var(--button-background-color);
 }
 
 
