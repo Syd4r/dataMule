@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
-from website import db
-from .models import Athlete, Team, TeamUserAssociation, Coach
+from models import db, Athlete, Team, TeamUserAssociation, Coach
 import os
 from hdforce import AuthManager
 import hdforce as hd
@@ -98,8 +97,7 @@ def getUserData(user):
         id = user.hawkins_database_id
 
     athlete_data = hd.GetTests(athleteId=id)
-    athlete_data_list = athlete_data.to_dict(orient="records")
-    
+    athlete_data = athlete_data[['Braking RFD(N/s)','Jump Height(m)','mRSI','Peak Relative Propulsive Power(W/kg)']]
     athlete_data.replace([np.nan, np.inf, -np.inf], None, inplace=True)
 
     athlete_data_list = athlete_data.to_dict(orient="records")
@@ -202,6 +200,7 @@ def hawkin():
         for athlete in athletes:
             athlete_team_name = fix_team_names(athlete.sport, athlete.gender)
             data_list[athlete_team_name.replace("'", "")].append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
+    
     return render_template("hawkin.html", athlete_data=json.dumps(data_list), links=get_links(user), user_type=user.user_type)
 
 @main_blueprint.route('/get_athlete_data/<user_name>', methods=['GET'])
