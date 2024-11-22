@@ -156,8 +156,6 @@ def fix_team_names(athlete_team_name, gender):
             athlete_team_name = "Women's Nordic"
     return athlete_team_name
 
-
-
 @main_blueprint.route('/hawkin', methods=['GET'])
 @login_required
 def hawkin():
@@ -241,6 +239,10 @@ def get_athlete_data(user_name):
 @main_blueprint.route('/add_athletes', methods=['GET', 'POST'])
 @login_required
 def add_athletes():
+
+    if current_user.user_type != 'admin' and current_user.user_type != 'super_admin':
+        return redirect(url_for('main.index'))
+    
     if request.method == 'POST' and 'action' in request.form:
         action = request.form.get('action')
 
@@ -301,6 +303,10 @@ def add_athletes():
 @main_blueprint.route('/add_coaches', methods=['GET', 'POST'])
 @login_required
 def add_coaches():
+
+    if current_user.user_type != 'admin' and current_user.user_type != 'super_admin':
+        return redirect(url_for('main.index'))
+    
     if request.method == 'POST' and 'action' in request.form:
         action = request.form.get('action')
         first_name = request.form.get('first_name')
@@ -364,6 +370,10 @@ def add_coaches():
 @main_blueprint.route('/add_admins', methods=['GET', 'POST'])
 @login_required
 def add_admins():
+
+    if current_user.user_type != 'super_admin':
+        return redirect(url_for('main.index'))
+    
     if request.method == 'POST' and 'action' in request.form:
         action = request.form.get('action')
         first_name = request.form.get('first_name')
@@ -455,6 +465,10 @@ def process_csv(file, action):
 @main_blueprint.route('/add_teams', methods=['GET', 'POST'])
 @login_required
 def add_teams():
+
+    if current_user.user_type != 'admin' and current_user.user_type != 'super_admin':
+        return redirect(url_for('main.index'))
+    
     if request.method == 'POST' and 'action' in request.form:
         action = request.form.get('action')
 
