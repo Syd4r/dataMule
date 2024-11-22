@@ -1,11 +1,9 @@
 # Imports
 from datetime import datetime
+from website import db
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
-
-# Database Models
-db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'

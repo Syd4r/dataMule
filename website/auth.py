@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
-from models import db, User
+from website import db
+from .models import User
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mail import Mail, Message
 
-from email_utils import send_email  # Import send_email from the new email_utils
+from website.email_utils import send_email  # Import send_email from the new email_utils
 from itsdangerous import TimedJSONWebSignatureSerializer , BadSignature, SignatureExpired
 
 # Create a blueprint

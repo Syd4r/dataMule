@@ -1,4 +1,4 @@
-from models import db, Admin, Athlete
+from website.models import db, Admin, Athlete
 from flask import Flask
 import os
 
