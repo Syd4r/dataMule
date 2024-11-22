@@ -34,6 +34,10 @@ def login():
         
     return render_template("login.html")
 
+@auth_blueprint.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('auth.login'))
 
 @auth_blueprint.route('/register', methods=['GET', 'POST'])
 def register():

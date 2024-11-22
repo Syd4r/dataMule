@@ -56,6 +56,14 @@ def get_links(user):
         }
     ]
 
+    links += [
+        {
+            "name": "Logout",
+            "url": url_for("auth.logout"),
+            "icon": "images/hawkin.jpg"
+        }
+    ]
+
     if user.user_type == "super_admin":
         links += [
             {
