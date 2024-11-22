@@ -5,6 +5,9 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 import pymysql
 pymysql.install_as_MySQLdb()
+from dotenv import load_dotenv
+
+load_dotenv()
 
 db = SQLAlchemy()
 
