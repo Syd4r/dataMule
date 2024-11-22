@@ -1,4 +1,4 @@
-from website.models import db, Admin, Athlete
+from website.models import db, Admin, Athlete, SuperAdmin
 from flask import Flask
 import os
 
@@ -35,6 +35,19 @@ def create_athlete_user(first_name, last_name, hawkins_id, birth_date, gender, s
         db.session.commit()
         print(f"Athlete user '{first_name} {last_name}' created successfully.")
 
+def create_super_admin(first_name, last_name, email, password):
+    with app.app_context():
+        # Check if an admin already exists with the given email
+        if SuperAdmin.query.filter_by(email=email).first():
+            print("SuperAdmin with this email already exists.")
+            return
+        
+        # Create and add the admin user
+        super_admin = SuperAdmin(first_name=first_name, last_name=last_name, email=email)
+        super_admin.set_password(password)
+        db.session.add(super_admin)
+        db.session.commit()
+        print(f"SuperAdmin user '{first_name} {last_name}' created successfully.")
 
 # Example usage in command prompt
 # Run this script directly to create an admin user
@@ -43,12 +56,12 @@ if __name__ == '__main__':
         db.create_all()  # Ensure tables are created
 
     # Replace the following details with your desired admin info
-    create_admin_user(
-        first_name="John",
-        last_name="Doe",
-        email="datamulecolby@gmail.com",
-        password=os.getenv('ADMIN_PASSWORD')
-    )
+    # create_admin_user(
+    #     first_name="John",
+    #     last_name="Doe",
+    #     email="datamulecolby@gmail.com",
+    #     password=os.getenv('ADMIN_PASSWORD')
+    # )
 
     # Replace the following details with your desired athlete info
     # create_athlete_user( # the two things we check when activating are FirsName+LastName or LastName+DOB
@@ -61,3 +74,10 @@ if __name__ == '__main__':
     #     position="QB",
     #     grad_year=2028
     # )
+
+    create_super_admin(
+        first_name="Super",
+        last_name="Admin",
+        email="super@admin.com",
+        password="password"
+    )

@@ -21,8 +21,8 @@
             <select id="athleteSelect">
                 <option value="">Select Athlete</option>
             </select>
-        {% elif user_type == "admin" %}
-            <!-- Admin's dropdowns to select a team and then an athlete -->
+        {% elif user_type == "admin" or user_type == "super_admin" %}
+            <!-- Admin's and Super_Admin's dropdowns to select a team and then an athlete -->
             <label for="teamSelect" class="stat-label">Select Team:</label>
             <select id="teamSelect">
                 <option value="">Select Team</option>
