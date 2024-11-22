@@ -1,4 +1,4 @@
-from website.models import db, Admin, Athlete, SuperAdmin
+from website.models import db, Admin, Athlete, SuperAdmin, Coach
 from flask import Flask
 import os
 
@@ -49,6 +49,20 @@ def create_super_admin(first_name, last_name, email, password):
         db.session.commit()
         print(f"SuperAdmin user '{first_name} {last_name}' created successfully.")
 
+def create_coach_user(first_name, last_name, email, password):
+    with app.app_context():
+        # Check if an admin already exists with the given email
+        if Coach.query.filter_by(email=email).first():
+            print("Coach with this email already exists.")
+            return
+        
+        # Create and add the admin user
+        coach = Coach(first_name=first_name, last_name=last_name, email=email, team_id=20)
+        coach.set_password(password)
+        db.session.add(coach)
+        db.session.commit()
+        print(f"Coach user '{first_name} {last_name}' created successfully.")
+
 # Example usage in command prompt
 # Run this script directly to create an admin user
 if __name__ == '__main__':
@@ -56,12 +70,12 @@ if __name__ == '__main__':
         db.create_all()  # Ensure tables are created
 
     # Replace the following details with your desired admin info
-    # create_admin_user(
-    #     first_name="John",
-    #     last_name="Doe",
-    #     email="datamulecolby@gmail.com",
-    #     password=os.getenv('ADMIN_PASSWORD')
-    # )
+    create_admin_user(
+        first_name="John",
+        last_name="Doe",
+        email="datamulecolby@gmail.com",
+        password=os.getenv('ADMIN_PASSWORD')
+    )
 
     # Replace the following details with your desired athlete info
     # create_athlete_user( # the two things we check when activating are FirsName+LastName or LastName+DOB
@@ -80,4 +94,11 @@ if __name__ == '__main__':
         last_name="Admin",
         email="super@admin.com",
         password="password"
+    )
+
+    create_coach_user(
+        first_name="Coach",
+        last_name="Smith",
+        email="coach@test.com",
+        password="password",
     )
