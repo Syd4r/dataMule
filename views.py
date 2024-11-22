@@ -105,6 +105,33 @@ def getUserData(user):
 
     return athlete_data_list
 
+def fix_team_names(athlete_team_name, gender):
+    # there are inconsistencies in the database vs the athlete data, so we need to standardize the team names
+    if "Lacrosse" in athlete_team_name:
+            athlete_team_name = athlete_team_name.replace("Lacrosse", "LAX")
+    elif "Women's Field Hockey" in athlete_team_name:
+        athlete_team_name = "Field Hockey"
+    elif "Alpine Skiing" in athlete_team_name:
+        if gender == "M":
+            athlete_team_name = "Men's Alpiine" #this is not my typo, this is how it is in the database
+        else:
+            athlete_team_name = "Women's Alpine"
+    elif "Swimming & Diving" in athlete_team_name:
+        if gender == "M":
+            athlete_team_name = "Men's Swim & Dive"
+        else:
+            athlete_team_name = "Women's Swim & Dive"
+    elif "Women's Volleyball" in athlete_team_name:
+        athlete_team_name = "Volleyball"
+    elif "Nordic Skiing" in athlete_team_name:
+        if gender == "M":
+            athlete_team_name = "Men's Nordic"
+        else:
+            athlete_team_name = "Women's Nordic"
+    return athlete_team_name
+
+
+
 @main_blueprint.route('/hawkin', methods=['GET'])
 @login_required
 def hawkin():
@@ -135,28 +162,9 @@ def hawkin():
         
             for athlete in all_athletes:
                 athlete_team_name = athlete.sport
-                # there are inconsistencies in the database vs the athlete data, so we need to standardize the team names
-                if "Lacrosse" in athlete_team_name:
-                        athlete_team_name = athlete_team_name.replace("Lacrosse", "LAX")
-                elif "Women's Field Hockey" in athlete_team_name:
-                    athlete_team_name = "Field Hockey"
-                elif "Alpine Skiing" in athlete_team_name:
-                    if athlete.gender == "M":
-                        athlete_team_name = "Men's Alpiine" #this is not my typo, this is how it is in the database
-                    else:
-                        athlete_team_name = "Women's Alpine"
-                elif "Swimming & Diving" in athlete_team_name:
-                    if athlete.gender == "M":
-                        athlete_team_name = "Men's Swim & Dive"
-                    else:
-                        athlete_team_name = "Women's Swim & Dive"
-                elif "Women's Volleyball" in athlete_team_name:
-                    athlete_team_name = "Volleyball"
-                elif "Nordic Skiing" in athlete_team_name:
-                    if athlete.gender == "M":
-                        athlete_team_name = "Men's Nordic"
-                    else:
-                        athlete_team_name = "Women's Nordic"
+
+                athlete_team_name = fix_team_names(athlete_team_name, athlete.gender)
+                
                 if athlete_team_name not in allteamnames.keys():
                     try:
                         allteamnames[athlete_team_name] = [athlete]
@@ -183,14 +191,16 @@ def hawkin():
             # Commit all changes to the database in one transaction
             db.session.commit()
             all_teams = Team.query.all()
-    
+
+        athletes = Athlete.query.all()
         data_list = {}
         for team in all_teams:
+            #print(team.name)
             data_list[team.name.replace("'", "")] = []
-            athletes = team.members
-            for athlete in athletes:
-                athlete = athlete.user
-                data_list[team.name.replace("'", "")].append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
+
+        for athlete in athletes:
+            athlete_team_name = fix_team_names(athlete.sport, athlete.gender)
+            data_list[athlete_team_name.replace("'", "")].append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
     return render_template("hawkin.html", athlete_data=json.dumps(data_list), links=get_links(user), user_type=user.user_type)
 
 @main_blueprint.route('/get_athlete_data/<user_name>', methods=['GET'])
