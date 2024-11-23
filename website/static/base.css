@@ -21,9 +21,13 @@ body {
     --input-background-color: #333333;
 }
 
-button, input, .flash-message, .icon-box, .chart-container {
+input, .flash-message, .icon-box, .chart-container {
     background-color: var(--input-background-color);
     color: var(--text-color);
+}
+
+button {
+    color: #fff;
 }
 
 button:hover {
