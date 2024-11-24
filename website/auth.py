@@ -52,7 +52,10 @@ def register():
 
         user = User.query.filter_by(first_name=first_name, last_name=last_name).first()
         if user is None:
-            user = User.query.filter_by(last_name=last_name, birth_date=birth_date).first()
+            # !!!!!! WE SHOULD ADD BIRTH_DATE AS A FIELD
+            # TO OTHER USER TYPES; CURRENTLY ONLY A FIELD OF ATHLETES
+            # user = User.query.filter_by(last_name=last_name, birth_date=birth_date).first() 
+
             if user is None:
                 flash("User not found, please contact administrator if issue persists", "error")
                 return redirect(url_for('auth.register'))
@@ -74,7 +77,6 @@ To set your email and password, visit the following link:
         return redirect(url_for('auth.register'))  # Redirect or render a different template
 
     return render_template("register.html")
-
 
 @auth_blueprint.route('/setup', methods=['GET', 'POST'])
 def setup():
@@ -119,6 +121,40 @@ def setup():
     # Render the setup form with the token (hidden field) for POST requests
     return render_template("setup.html", token=token)
 
-@auth_blueprint.route('/reset_password', methods=['GET'])
+@auth_blueprint.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+
+    if request.method == 'POST':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        birth_date = request.form['birth_date']
+
+        user = User.query.filter_by(first_name=first_name, last_name=last_name).first()
+        if user is None:
+            # !!!!!! WE SHOULD ADD BIRTH_DATE AS A FIELD
+            # TO OTHER USER TYPES; CURRENTLY ONLY A FIELD OF ATHLETES
+            # user = User.query.filter_by(last_name=last_name, birth_date=birth_date).first() 
+
+            if user is None:
+                flash("User not found, please contact administrator if issue persists", "error")
+                return redirect(url_for('auth.reset_password'))
+        email = f"{user.first_name.lower()}.{user.last_name.lower()}@colby.edu"
+
+        s = TimedJSONWebSignatureSerializer(current_app.config['SECRET_KEY'], expires_in=3600)
+        token = s.dumps({'user_id': user.id}).decode('utf-8')
+
+        reset_link = url_for('auth.setup', token=token, _external=True)
+        email_body = f'''
+To reset your email and password, visit the following link:
+{reset_link}
+'''
+        
+        # Send the email
+        send_email("Reset Your Password", email, email_body)
+
+        flash(f"Email sent to {email} with link to reset password", "success")
+        return redirect(url_for('auth.reset_password'))  # Redirect or render a different template
+
     return render_template("reset_password.html")
