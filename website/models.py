@@ -78,7 +78,7 @@ class Athlete(User):
     position = db.Column(db.String(50))
     grad_year = db.Column(db.Integer)
 
-    athlete_performance = db.relationship('AlthetePerformance', backref='athlete', cascade="all, delete-orphan")
+    athlete_performance = db.relationship('AthletePerformance', backref='athlete', cascade="all, delete-orphan")
 
     __mapper_args__ = {
         'polymorphic_identity': 'athlete',
@@ -98,7 +98,7 @@ class Athlete(User):
         self.grad_year = grad_year
 
 
-class AlthetePerformance(db.Model):
+class AthletePerformance(db.Model):
     date = db.Column(db.Date, nullable=True, default=datetime.utcnow)
     jump_height = db.Column(db.Float, nullable=True)
     braking_rfd = db.Column(db.Float, nullable=True)

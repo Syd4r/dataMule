@@ -1,6 +1,6 @@
 import pytest
 from website import create_app, db
-from website.models import User, Admin, Athlete, Coach, Team, TeamUserAssociation, AlthetePerformance, Note
+from website.models import User, Admin, Athlete, Coach, Team, TeamUserAssociation, AthletePerformance, Note
 import os
 from werkzeug.security import generate_password_hash
 
