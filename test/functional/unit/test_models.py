@@ -1,4 +1,4 @@
-from website.models import User, Admin, Athlete, Coach, Team, TeamUserAssociation, AlthetePerformance, Note
+from website.models import User, Admin, Athlete, Coach, Team, TeamUserAssociation, AthletePerformance, Note
 
 def test_user_creation(session):
     # Create a basic user
@@ -64,7 +64,7 @@ def test_athlete_performance(session):
         hawkins_id="H5678", first_name="Mark", last_name="Lee",
         birth_date="1999-05-05", gender="M", sport="Track", position="Runner", grad_year=2023
     )
-    performance = AlthetePerformance(
+    performance = AthletePerformance(
         athlete=athlete, jump_height=2.5, braking_rfd=150.0, mrsi=1.2, peak_propulsive_force=300.0
     )
     session.add_all([athlete, performance])

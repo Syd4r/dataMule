@@ -3,7 +3,7 @@ from datetime import datetime
 from website import db
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -32,6 +32,8 @@ class User(UserMixin, db.Model):
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class Admin(User):
     __mapper_args__ = {
@@ -78,7 +80,7 @@ class Athlete(User):
     position = db.Column(db.String(50))
     grad_year = db.Column(db.Integer)
 
-    athlete_performance = db.relationship('AlthetePerformance', backref='athlete', cascade="all, delete-orphan")
+    athlete_performance = db.relationship('AthletePerformance', backref='athlete', cascade="all, delete-orphan")
 
     __mapper_args__ = {
         'polymorphic_identity': 'athlete',
@@ -98,7 +100,7 @@ class Athlete(User):
         self.grad_year = grad_year
 
 
-class AlthetePerformance(db.Model):
+class AthletePerformance(db.Model):
     date = db.Column(db.Date, nullable=True, default=datetime.utcnow)
     jump_height = db.Column(db.Float, nullable=True)
     braking_rfd = db.Column(db.Float, nullable=True)
