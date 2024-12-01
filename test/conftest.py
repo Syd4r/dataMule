@@ -5,6 +5,31 @@ import os
 from werkzeug.security import generate_password_hash
 from flask_login import login_user
 
+@pytest.fixture(scope='module')
+def test_app():
+    app = create_app()
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://eu7j42aanx9919j0:d3q831zu7dxey4bd@thh2lzgakldp794r.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/yog0wc5n980ulao5'
+    with app.app_context():
+        db.create_all()
+        
+    yield app
+    with app.app_context():
+        db.session.remove()
+
+@pytest.fixture(scope='module')
+def client(test_app):
+    return test_app.test_client()
+
+@pytest.fixture(scope='function')
+def session(test_app):
+    with test_app.app_context():
+        yield db.session
+        db.session.rollback()
+
+
+
+
 @pytest.fixture()
 def test_client():
     os.environ['CONFIG_TYPE'] = 'config.TestingConfig'
