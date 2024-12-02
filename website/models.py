@@ -101,7 +101,7 @@ class Athlete(User):
 
 
 class AthletePerformance(db.Model):
-    date = db.Column(db.Date, nullable=True, default=datetime.utcnow)
+    date = db.Column(db.Date, nullable=True, default=datetime.now())
     jump_height = db.Column(db.Float, nullable=True)
     braking_rfd = db.Column(db.Float, nullable=True)
     mrsi = db.Column(db.Float, nullable=True)
