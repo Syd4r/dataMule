@@ -28,7 +28,6 @@ hdforce == 1.1.2
 gunicorn==20.1.0
 psycopg2-binary
 pymysql==1.1.1
-mySQLdb
 pytest
 pytest-cov
 pylint
