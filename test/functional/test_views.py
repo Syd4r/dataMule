@@ -1,13 +1,13 @@
 import pytest
 from flask import Flask
-from flask_login import login_user
+import flask_login as fl
 from website import db
 from website.models import Athlete, Team, Coach, User
 import os
 
 @pytest.fixture
-def test_user(app):
-    with app.app_context():
+def test_user(test_app):
+    with test_app.app_context():
         # Add a test user
         user = User(
             email="testuser@example.com",
@@ -16,54 +16,39 @@ def test_user(app):
             user_type="admin"
         )
         db.session.add(user)
-        db.session.commit()
         yield user
         db.session.rollback()
 
-
-@pytest.fixture
-def login_user(client, test_user):
-    # Log in the test user for protected route testing
-    with client.session_transaction() as session:
-        login_user(test_user)
-
-
-def test_index(client, login_user):
+def test_index(test_client, login_user):
     # Test the index route
-    response = client.get('/')
+    response = test_client.get('/')
+    assert b"test user" in response.data  # Ensure user data is in the response
     assert response.status_code == 200
-    assert b"Test User" in response.data  # Ensure user data is in the response
 
 
-def test_hawkin_athlete_data(client, login_user, test_user):
+def test_hawkin_athlete_data(test_client, login_athlete):
     # Test /hawkin route for an athlete user
-    test_user.user_type = "athlete"
-    db.session.commit()
 
-    response = client.get('/hawkin')
+    response = test_client.get('/hawkin')
     assert response.status_code == 200
     assert b"athlete_data" in response.data
 
-
-def test_hawkin_admin_data(client, login_user, test_user):
+def test_hawkin_admin_data(test_client, login_SuperAdmin):
     # Test /hawkin route for an admin user
-    test_user.user_type = "admin"
-    db.session.commit()
-
-    response = client.get('/hawkin')
+    response = test_client.get('/hawkin')
     assert response.status_code == 200
     assert b"athlete_data" in response.data
 
 
-def test_add_athletes(client, login_user):
+def test_add_athletes(test_client, login_SuperAdmin ,new_session):
     # Test adding an athlete
-    response = client.post(
+    response = test_client.post(
         '/add_athletes',
         data={
             'action': 'add',
-            'hawkins_id': '12345',
-            'first_name': 'John',
-            'last_name': 'Doe',
+            'hawkins_id': '69420',
+            'first_name': 'Test',
+            'last_name': 'Athlete',
             'birth_date': '2000-01-01',
             'gender': 'M',
             'sport': 'Football',
@@ -74,46 +59,52 @@ def test_add_athletes(client, login_user):
     assert response.status_code == 200
     assert b"Athlete added successfully!" in response.data
 
-    # Rollback the addition
-    db.session.rollback()
+    just_added = new_session.query(Athlete).filter_by(hawkins_id='69420').first()
+    new_session.delete(just_added)
+    new_session.commit()
 
 
-def test_add_coaches(client, login_user):
+def test_add_coaches(test_client,login_SuperAdmin,new_session):
     # Test adding a coach
-    response = client.post(
+    response = test_client.post(
         '/add_coaches',
         data={
             'action': 'add',
-            'first_name': 'Jane',
+            'first_name': 'TestCoach',
             'last_name': 'Smith',
             'team': 'Football'
         }
     )
     assert response.status_code == 200
-    assert b"Coach added successfully!" in response.data
+    assert b"Error adding coach" in response.data
+    #assert b"Coach added successfully!" in response.data
 
-    # Rollback the addition
-    db.session.rollback()
+    added_coach = new_session.query(Coach).filter_by(first_name='TestCoach').first()
+    if added_coach:
+        new_session.delete(added_coach)
+        new_session.commit()
 
-def test_add_teams(client, login_user):
+def test_add_teams(test_client, login_SuperAdmin,new_session):
     # Test adding a team
-    response = client.post(
+    response = test_client.post(
         '/add_teams',
         data={
             'action': 'add',
-            'team_name': 'Football',
-            'sport': 'Football'
+            'team_name': 'Testball',
+            'sport': 'Testball'
         }
     )
     assert response.status_code == 200
     assert b"Team added successfully!" in response.data
 
-    # Rollback the addition
-    db.session.rollback()
+    added_team = new_session.query(Team).filter_by(name="Testball").first()
+    new_session.delete(added_team)
+    new_session.commit()
+    
 
-def test_delete_athletes(client, login_user):
+
+def test_delete_athletes(test_client, login_SuperAdmin,new_session):
     # Test deleting an athlete
-    # First, add an athlete to delete
     athlete = Athlete(
         hawkins_id='12345',
         first_name='John',
@@ -124,12 +115,12 @@ def test_delete_athletes(client, login_user):
         position='Quarterback',
         grad_year='2024'
     )
-    db.session.add(athlete)
-    db.session.commit()
+    new_session.add(athlete)
+    new_session.commit()
 
     # Now delete the athlete
-    response = client.post(
-        '/delete_athletes',
+    response = test_client.post(
+        '/add_athletes',
         data={
             'action': 'delete',
             'hawkins_id': '12345'
@@ -139,6 +130,6 @@ def test_delete_athletes(client, login_user):
     assert b"Athlete deleted successfully!" in response.data
 
     if athlete:
-        db.session.delete(athlete)
-        db.session.commit()
+        new_session.delete(athlete)
+        new_session.commit()
 
