@@ -31,3 +31,4 @@ pymysql==1.1.1
 mySQLdb
 pytest
 pytest-cov
+pylint
