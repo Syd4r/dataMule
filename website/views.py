@@ -1,12 +1,13 @@
+'''This file contains the routes for the website.'''
+import os
+import json
+import numpy as np
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
 from website import db
 from .models import Athlete, Team, TeamUserAssociation, Coach, Admin
-import os
 from hdforce import AuthManager
 import hdforce as hd
-import json
-import numpy as np
 
 # Create a blueprint
 main_blueprint = Blueprint('main', __name__)
@@ -19,6 +20,7 @@ AuthManager(
 )
 
 def get_links(user):
+    '''Function to get the links for the icons'''
     links = [
         {
             "name": "Home",
@@ -68,13 +70,14 @@ def get_links(user):
             "url": url_for("auth.logout")
         }
     ]
-    
+
     return links
 
 # Routes
 @main_blueprint.route('/', methods=['GET'])
 @login_required
 def index():
+    '''Function to render the home page'''
     user = current_user
     name = user.first_name + " " + user.last_name
     return render_template("index.html", user_name=name, links=get_links(user))
@@ -82,9 +85,10 @@ def index():
 important_data = ['Braking RFD(N/s)','Jump Height(m)','mRSI','Peak Relative Propulsive Power(W/kg)']
 
 def averagePoints(data):
+    '''Function to average the data points for each athlete'''
     return_data = []
     iter = 0
-    while (iter < len(data) - 1):
+    while iter < len(data) - 1:
         return_data.append({})
         return_data[-1]['timestamp'] = data[iter]['timestamp']
         return_data[-1]['id'] = data[iter]['id']
@@ -93,7 +97,8 @@ def averagePoints(data):
         if abs(data[iter]['timestamp'] - data[iter+1]['timestamp']) < 36000:
             for data_point in important_data:
                 if data[iter][data_point] != None and data[iter+1][data_point] != None:
-                    return_data[-1][data_point] = (data[iter][data_point] + data[iter+1][data_point]) / 2
+                    tempVal = (data[iter][data_point] + data[iter+1][data_point]) / 2
+                    return_data[-1][data_point] = tempVal
                 elif data[iter][data_point] == None and data[iter+1][data_point] != None:
                     return_data[-1][data_point] = data[iter+1][data_point]
                 elif data[iter][data_point] != None and data[iter+1][data_point] == None:
@@ -110,6 +115,7 @@ def averagePoints(data):
     return return_data
 
 def getUserData(user):
+    '''Function to get the hawkin data for an athlete'''
     if user.hawkins_database_id == 'notSet':
         name = user.first_name + " " + user.last_name
         all_athletes = hd.GetAthletes()
@@ -132,14 +138,16 @@ def getUserData(user):
     return averagePoints(athlete_data_list)
 
 def fix_team_names(athlete_team_name, gender):
-    # there are inconsistencies in the database vs the athlete data, so we need to standardize the team names
+    '''Function to fix the team names'''
+    # there are inconsistencies in the database vs the athlete data
+    # so we need to standardize the team names
     if "Lacrosse" in athlete_team_name:
-            athlete_team_name = athlete_team_name.replace("Lacrosse", "LAX")
+        athlete_team_name = athlete_team_name.replace("Lacrosse", "LAX")
     elif "Women's Field Hockey" in athlete_team_name:
         athlete_team_name = "Field Hockey"
     elif "Alpine Skiing" in athlete_team_name:
         if gender == "M":
-            athlete_team_name = "Men's Alpiine" #this is not my typo, this is how it is in the database
+            athlete_team_name = "Men's Alpiine" #this is how it is in the database
         else:
             athlete_team_name = "Women's Alpine"
     elif "Swimming & Diving" in athlete_team_name:
@@ -159,8 +167,10 @@ def fix_team_names(athlete_team_name, gender):
 @main_blueprint.route('/hawkin', methods=['GET'])
 @login_required
 def hawkin():
+    '''Function to render the hawkin page'''
     user = current_user
-    #user = db.session.query(Athlete).filter_by(first_name="Duke", last_name="Ferrara").first() # USE THIS LINE ONLY FOR TESTING
+    #user = db.session.query(Athlete).filter_by(first_name="Duke", last_name="Ferrara").first()
+    # USE THIS LINE ONLY FOR TESTING
     if user.user_type == "athlete":
         data_list = getUserData(user)
     elif user.user_type == "coach":
@@ -170,25 +180,29 @@ def hawkin():
         #data_list["Name"] = team.name.replace("'", "")
         for athlete in athletes:
             athlete = athlete.user
-            data_list.append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
+            aVal = athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", "")
+            data_list.append(aVal)
 
     else: # admin or super admin
         all_teams = Team.query.all()
         # Check if no teams exist in the database
-        if len(all_teams) == 0: #if there are no teams in the database, we need to add them. Doing this manually would be a pain, so we will do it automatically, this literally will only happen once
+        if len(all_teams) == 0: 
+            # If there are no teams in the database, we need to add them. 
+            # Doing this manually would be a pain, so we will do it automatically
             all_athletes = Athlete.query.all()
             hd_teams = hd.GetTeams() #this is a pandas dataframe
-            #theres a change that teams have spaces at the end of their names, so we need to strip them
+            # Theres a change that teams have spaces at the end of their names
+            # So we need to strip them
             hd_teams['name'] = hd_teams['name'].str.strip()
             #print(hd_teams)
             allteamnames = {}
             teams = {}
-        
+
             for athlete in all_athletes:
                 athlete_team_name = athlete.sport
 
                 athlete_team_name = fix_team_names(athlete_team_name, athlete.gender)
-                
+
                 if athlete_team_name not in allteamnames.keys():
                     try:
                         allteamnames[athlete_team_name] = [athlete]
@@ -231,6 +245,7 @@ def hawkin():
 @main_blueprint.route('/get_athlete_data/<user_name>', methods=['GET'])
 @login_required
 def get_athlete_data(user_name):
+    '''Function to get the data for an athlete'''
     user = db.session.query(Athlete).filter_by(first_name=user_name.split('-')[0], last_name=user_name.split('-')[1]).first()
     data_list = getUserData(user)
     return json.dumps(data_list)
@@ -239,7 +254,7 @@ def get_athlete_data(user_name):
 @main_blueprint.route('/add_athletes', methods=['GET', 'POST'])
 @login_required
 def add_athletes():
-
+    '''Function to add athletes'''
     if current_user.user_type != 'admin' and current_user.user_type != 'super_admin':
         return redirect(url_for('main.index'))
     
@@ -303,7 +318,7 @@ def add_athletes():
 @main_blueprint.route('/add_coaches', methods=['GET', 'POST'])
 @login_required
 def add_coaches():
-
+    '''Function to add coaches'''
     if current_user.user_type != 'admin' and current_user.user_type != 'super_admin':
         return redirect(url_for('main.index'))
     
@@ -370,7 +385,7 @@ def add_coaches():
 @main_blueprint.route('/add_admins', methods=['GET', 'POST'])
 @login_required
 def add_admins():
-
+    '''Function to add admins'''
     if current_user.user_type != 'super_admin':
         return redirect(url_for('main.index'))
     
@@ -428,6 +443,7 @@ def add_admins():
     return render_template("add_admins.html", links=get_links(current_user), admins=admins)
 
 def process_csv(file, action):
+    '''Function to process a csv file'''
     try:
         file.save(file.filename)
         with open(file.filename, 'r') as f:
@@ -470,7 +486,7 @@ def process_csv(file, action):
 @main_blueprint.route('/add_teams', methods=['GET', 'POST'])
 @login_required
 def add_teams():
-
+    '''Function to add teams'''
     if current_user.user_type != 'admin' and current_user.user_type != 'super_admin':
         return redirect(url_for('main.index'))
     
