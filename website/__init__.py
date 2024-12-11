@@ -6,9 +6,6 @@ from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 import pymysql
 from dotenv import load_dotenv
-from .models import User
-from .views import main_blueprint
-from .auth import auth_blueprint
 
 load_dotenv()
 pymysql.install_as_MySQLdb()
@@ -40,6 +37,10 @@ def create_app():
 
     login_manager = LoginManager(app)
     login_manager.login_view = 'auth.login'
+
+    from .models import User
+    from .views import main_blueprint
+    from .auth import auth_blueprint
 
     @login_manager.user_loader
     def load_user(user_id):
