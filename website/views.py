@@ -192,11 +192,11 @@ def hawkin():
     '''Function to render the hawkin page'''
     user = current_user
     if user.user_type == "athlete":
-        #user = (
-        #    db.session.query(Athlete)
-        #    .filter_by(first_name="Abby", last_name="Hess")
-        #    .first()
-        #)  # USE THIS LINE ONLY FOR TESTING
+        user = (
+            db.session.query(Athlete)
+            .filter_by(first_name="Abby", last_name="Hess")
+            .first()
+        )  # USE THIS LINE ONLY FOR TESTING
         data_list = getUserData(user)
     elif user.user_type == "coach":
         team = user.team
