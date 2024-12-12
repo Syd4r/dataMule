@@ -31,13 +31,13 @@ def test_hawkin_athlete_data(test_client, login_athlete):
 
     response = test_client.get('/hawkin')
     assert response.status_code == 200
-    assert b"athlete_data" in response.data
+    assert b"Hawkin Dynamics Data" in response.data
 
 def test_hawkin_admin_data(test_client, login_SuperAdmin):
     # Test /hawkin route for an admin user
     response = test_client.get('/hawkin')
     assert response.status_code == 200
-    assert b"athlete_data" in response.data
+    assert b"Select Team" in response.data
 
 
 def test_add_athletes(test_client, login_SuperAdmin ,new_session):
