@@ -192,11 +192,11 @@ def hawkin():
     '''Function to render the hawkin page'''
     user = current_user
     if user.user_type == "athlete":
-        #user = (
-        #    db.session.query(Athlete)
-        #    .filter_by(first_name="Abby", last_name="Hess")
-        #    .first()
-        #)  # USE THIS LINE ONLY FOR TESTING
+        user = (
+            db.session.query(Athlete)
+            .filter_by(first_name="Abby", last_name="Hess")
+            .first()
+        )  # USE THIS LINE ONLY FOR TESTING
         data_list = getUserData(user)
     elif user.user_type == "coach":
         team = user.team
@@ -399,6 +399,7 @@ def add_coaches():
             try:
                 if action == "add" and not coach:
                     team = Team.query.filter_by(name=form_data["team"]).first()
+                    form_data.pop("team")
                     db.session.add(Coach(**form_data, team=team))
                     flash("Coach added successfully!", "success")
                 elif action == "delete" and coach:

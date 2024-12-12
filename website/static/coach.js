@@ -6,6 +6,69 @@ const athleteList = document.getElementById("athlete_list")
 
 let selectedAthleteData = [];
 
+const name_mangler = new Object();
+name_mangler['counter'] = 0;
+
+name_mangler.unmangled_name = new Object();
+name_mangler.mangled_name = new Object();
+
+let ordinal_suffix = function(num) {
+    let str = num.toString();
+    let tens_place = '0';
+    let ones_place = str[str.length-1];
+
+    if (str.length >= 2) {
+        tens_place = str[str.length-2];
+    }
+
+    if (tens_place === '1') {
+        return 'th';
+    }
+    else {
+        switch (ones_place) {
+            case '0':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                return 'th';
+            case '1':
+                return 'st';
+            case '2':
+                return 'nd';
+            case '3':
+                return 'rd';
+        }
+    }
+};
+
+name_mangler.mangle = name => {
+    if (name_mangler.mangled_name[name] === undefined) {
+        if (name === 'Abby Hess') {
+            name_mangler.mangled_name[name] = 'Naser Al Mighty';
+        }
+
+        else {
+            name_mangler.counter++;
+            name_mangler.mangled_name[name] = 'Jesse Doe the ' + name_mangler.counter + ordinal_suffix(name_mangler.counter); 
+        }
+
+        name_mangler.unmangled_name[name_mangler.mangled_name[name]] = name;
+    }
+
+    return name_mangler.mangled_name[name];
+};
+
+name_mangler.unmangle = name => {
+    if (name_mangler.unmangled_name[name] === undefined) {
+        console.error('ERROR, CAN\'T UNMANGLE ' + name);
+    }
+
+    return name_mangler.unmangled_name[name];
+};
+
 function loadStatOptions(data) {
     const ignoreKeys = ["id", "athlete_id", "athlete_name", "athlete_teams", "athlete_groups", "athlete_active", "testType_id", "testType_name", "testType_canonicalId", "tag_ids", "tag_names", "segment", "active", "timestamp"];
     let statKeys = Object.keys(data[0]).filter(key => !ignoreKeys.includes(key));
@@ -13,9 +76,9 @@ function loadStatOptions(data) {
     statKeys = statKeys.filter(key => !key.startsWith("external"));
 
     //keep the stat loaded if one has already been selected
-    if(statChart.options.scales.y.title.text != statSelect.value){
-    statSelect.innerHTML = '<option value="">Select Stat</option>';
-    }
+    if(statChart.options.scales.y.title.text != statSelect.value || statChart.options.scales.y.title.text == ""){
+        statSelect.innerHTML = '<option value="">Select Stat</option>';
+        }
     statKeys.forEach(stat => {
         const option = document.createElement("option");
         option.value = stat;
@@ -113,10 +176,12 @@ if (userType !== "athlete") {
     }else {
         athleteList.innerHTML="";
         // Populate the athlete dropdown on page load
-        for (const athlete of athleteData) {
+        for (let athlete of athleteData) {
             //check if an option already exists
+            athlete = name_mangler.mangle(athlete);
             if (!athleteSelect.innerHTML.includes(athlete)) {
                 const option = document.createElement("option");
+
                 option.textContent = athlete;
                 athleteSelect.appendChild(option);
                 
@@ -154,6 +219,7 @@ if (userType !== "athlete") {
             new_checkbox.checked = true;
         }
         clearChart();
+        athlete = name_mangler.unmangle(athlete);
         athlete = athlete.replace(/ /g, "-");
         fetch(`/get_athlete_data/${athlete}`)
             .then(response => response.json())
@@ -441,10 +507,12 @@ function updateAthlete(athlete_name){
             if((athlete_name in loadedAthleteData) == false){
                 console.log(athlete_name+" not in Object");
                 //get the data
+                athlete_name = name_mangler.unmangle(athlete_name);
                 let athlete = athlete_name.replace(/ /g, "-");
                 fetch(`/get_athlete_data/${athlete}`)
                     .then(response => response.json())
                     .then(data => {
+                        athlete_name = name_mangler.mangle(athlete_name);
                         loadedAthleteData[athlete_name] = data;
                         let new_data = makeDataset(data,startDate,endDate,athlete_name,statSelect.value);
                         if(new_data.data != ""){
@@ -486,10 +554,12 @@ function updateAthlete(athlete_name){
         if(loadedAthleteData[athlete_name]){
             loadStatOptions(loadedAthleteData[athlete_name]);
         }else{
+            athlete_name = name_mangler.unmangle(athlete_name);
             let athlete = athlete_name.replace(/ /g, "-");
             fetch(`/get_athlete_data/${athlete}`)
                 .then(response => response.json())
                 .then(data => {
+                    athlete_name = name_mangler.mangle(athlete_name);
                     loadedAthleteData[athlete_name] = data;
                     loadStatOptions(data);
                     console.log("Stat options logged for "+athlete_name);
@@ -513,15 +583,16 @@ async function updateCheckBoxChart(stat){
     const startDate = new Date(document.getElementById("startDate").value).getTime();
     const endDate = new Date(document.getElementById("endDate").value).getTime();
 
-    for (const athlete of athleteData) {
+    for (let athlete of athleteData) {
+        athlete = name_mangler.mangle(athlete);
         let athlete_string = athlete+'';
-
         //check if the box is checked
         if(isBoxChecked(athlete_string)){
             console.log("Box is checked for"+athlete_string);
             if((athlete_string in loadedAthleteData) == false){
                 console.log(athlete_string+" not in Object");
                 //get the data
+                athlete_string = name_mangler.unmangle(athlete_string);
                 let athlete = athlete_string.replace(/ /g, "-");
                 fetch(`/get_athlete_data/${athlete}`)
                     .then(response => response.json())
@@ -531,6 +602,7 @@ async function updateCheckBoxChart(stat){
                             console.log("INSIDE CONDITIONAL");
                             getMinMaxTimestamp(data);
                         }
+                        athlete_string = name_mangler.mangle(athlete_string);
                         loadedAthleteData[athlete_string] = data;
                         let new_data = makeDataset(data,startDate,endDate,athlete_string,stat);
                         statChart.data.datasets.push(new_data);

@@ -103,8 +103,8 @@ body {
 }
 
 .icon-box img {
-    width: 100%;
-    height: auto;
+    width: auto;
+    max-height: 14vw;
     margin-bottom: 10px;
     min-width: 10vw;
     min-height: 10vw;
