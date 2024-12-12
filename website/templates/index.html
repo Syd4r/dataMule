@@ -24,3 +24,16 @@
         {% endfor %}
     </div>
 {% endblock %}
+
+{% block extra_js %}
+    <script>
+        //randomly choose a background image
+        document.addEventListener("DOMContentLoaded", function() {
+            const baseUrl = "{{ url_for('static', filename='images/') }}";
+            const images = ['background.png', 'background2.png', 'background3.png', 'background4.png', 'background5.png'];
+            const randomIndex = Math.floor(Math.random() * images.length);
+            const randomImage = images[randomIndex];
+            document.querySelector('.welcome-section').style.backgroundImage = `url(${baseUrl}${randomImage})`;
+        });
+    </script>
+{% endblock %}
