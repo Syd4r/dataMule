@@ -55,6 +55,7 @@ body {
     color: var(--text-color);
     transition: background-color 0.3s;
     margin: auto;
+    min-height: 300px;
 }
 
 .icon-box:hover {
