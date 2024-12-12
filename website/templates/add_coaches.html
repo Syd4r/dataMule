@@ -27,8 +27,8 @@
                 <div class="inputs">
                     <input type="text" name="first_name" placeholder="First Name" required>
                     <input type="text" name="last_name" placeholder="Last Name" required>
-                    <select name="team" required>
-                        <option value="" disabled selected>Select Team</option>
+                    <select name="team" required class="searchable-dropdown">
+                        <option value="">Select an option...</option>
                         {% for team in teams %}
                             <option value="{{ team.team_name }}">{{ team.team_name }}</option>
                         {% endfor %}
@@ -42,7 +42,8 @@
 
             <form action="{{ url_for('main.add_coaches') }}" method="post">
                 <div class="inputs">
-                    <select name="delete_coach">
+                    <select name="delete_coach" class="searchable-dropdown">
+                        <option value="">Select an option...</option>
                         {% for coach in coaches %}
                             <option value="{{ coach.id }}">{{ coach.name }} (ID: {{ coach.id }})</option>
                         {% endfor %}

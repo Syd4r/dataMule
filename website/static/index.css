@@ -22,6 +22,30 @@ body {
     text-align: center;
     color: var(--text-color);
     position: relative;
+    animation: fadeIn 2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.welcome-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.3) 30%, transparent 70%);
+    pointer-events: none; /* Ensures overlay does not interfere with user interaction */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(1.05); /* Slight zoom-in effect */
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .welcome-section h1 {
@@ -31,6 +55,8 @@ body {
     padding: 10px 20px;
     border-radius: 10px;
     color: #ffffff;
+    z-index: 1; /* Ensures text stays above overlays */
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7); /* Adds depth to text */
 }
 
 /* Icon Grid */
@@ -40,7 +66,7 @@ body {
     gap: 25px;
     padding-left: 10vw;
     padding-right: 10vw;
-    padding-top: 10vh;
+    padding-top: 5vh;
     padding-bottom: 10vh;
     background-color: var(--input-background-color);
     justify-items: center;
@@ -53,18 +79,39 @@ body {
     text-align: center;
     text-decoration: none;
     color: var(--text-color);
-    transition: background-color 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
     margin: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Initial subtle shadow */
+    min-height: 20vw;
+    /* made the text have a max width of 50% */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .icon-box:hover {
-    background-color: #c6c6ce;
+    background-color: var(--hover-color);
+    transform: translateY(-5px); /* Slight lift effect */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+    /* add a border to the icon-box */
+    border: 3px solid var(--button-background-color);
+}
+
+.icon-box:hover img {
+    transform: scale(1.1); /* Slight zoom effect on hover */
 }
 
 .icon-box img {
     width: 100%;
     height: auto;
     margin-bottom: 10px;
+    min-width: 10vw;
+    min-height: 10vw;
+}
+
+.icon-box span {
+    max-width: 80%;
 }
 
 /* Media Queries */

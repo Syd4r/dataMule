@@ -1,12 +1,13 @@
+'''This file contains the routes for the website.'''
+import os
+import json
+import numpy as np
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
 from website import db
 from .models import Athlete, Team, TeamUserAssociation, Coach, Admin
-import os
 from hdforce import AuthManager
 import hdforce as hd
-import json
-import numpy as np
 
 # Create a blueprint
 main_blueprint = Blueprint("main", __name__)
@@ -20,7 +21,13 @@ AuthManager(
 
 
 def get_links(user):
-    links = [{"name": "Home", "url": url_for("main.index")}]
+    '''Function to get the links for the icons'''
+    links = [
+        {
+            "name": "Home",
+            "url": url_for("main.index")
+        }
+    ]
 
     if user.user_type == "admin" or user.user_type == "super_admin":
         links += [
@@ -52,13 +59,18 @@ def get_links(user):
 
     links += [
         {
-            "name": "Hawkins Dynamics",
+            "name": "Hawkin Dynamics",
             "url": url_for("main.hawkin"),
             "icon": "images/hawkin.jpg",
         }
     ]
 
-    links += [{"name": "Logout", "url": url_for("auth.logout")}]
+    links += [
+        {
+            "name": "Logout",
+            "url": url_for("auth.logout")
+        }
+    ]
 
     return links
 
@@ -67,6 +79,7 @@ def get_links(user):
 @main_blueprint.route("/", methods=["GET"])
 @login_required
 def index():
+    '''Function to render the home page'''
     user = current_user
     name = user.first_name + " " + user.last_name
     return render_template("index.html", user_name=name, links=get_links(user))
@@ -81,6 +94,7 @@ important_data = [
 
 
 def averagePoints(data):
+    '''Function to average the data points for each athlete'''
     return_data = []
     iter = 0
     while iter < len(data) - 1:
@@ -121,7 +135,8 @@ def averagePoints(data):
 
 
 def getUserData(user):
-    if user.hawkins_database_id == "notSet":
+    '''Function to get the hawkin data for an athlete'''
+    if user.hawkins_database_id == 'notSet':
         name = user.first_name + " " + user.last_name
         all_athletes = hd.GetAthletes()
         athlete = all_athletes.loc[all_athletes["name"] == name]
@@ -144,14 +159,16 @@ def getUserData(user):
 
 
 def fix_team_names(athlete_team_name, gender):
-    # there are inconsistencies in the database vs the athlete data, so we need to standardize the team names
+    '''Function to fix the team names'''
+    # there are inconsistencies in the database vs the athlete data
+    # so we need to standardize the team names
     if "Lacrosse" in athlete_team_name:
         athlete_team_name = athlete_team_name.replace("Lacrosse", "LAX")
     elif "Women's Field Hockey" in athlete_team_name:
         athlete_team_name = "Field Hockey"
     elif "Alpine Skiing" in athlete_team_name:
         if gender == "M":
-            athlete_team_name = "Men's Alpiine"  # this is not my typo, this is how it is in the database
+            athlete_team_name = "Men's Alpiine" #this is how it is in the database
         else:
             athlete_team_name = "Women's Alpine"
     elif "Swimming & Diving" in athlete_team_name:
@@ -172,13 +189,14 @@ def fix_team_names(athlete_team_name, gender):
 @main_blueprint.route("/hawkin", methods=["GET"])
 @login_required
 def hawkin():
+    '''Function to render the hawkin page'''
     user = current_user
     if user.user_type == "athlete":
-        user = (
-            db.session.query(Athlete)
-            .filter_by(first_name="Abby", last_name="Hess")
-            .first()
-        )  # USE THIS LINE ONLY FOR TESTING
+        #user = (
+        #    db.session.query(Athlete)
+        #    .filter_by(first_name="Abby", last_name="Hess")
+        #    .first()
+        #)  # USE THIS LINE ONLY FOR TESTING
         data_list = getUserData(user)
     elif user.user_type == "coach":
         team = user.team
@@ -287,9 +305,9 @@ def get_athlete_data(user_name):
 @main_blueprint.route("/add_athletes", methods=["GET", "POST"])
 @login_required
 def add_athletes():
-
-    if current_user.user_type != "admin" and current_user.user_type != "super_admin":
-        return redirect(url_for("main.index"))
+    '''Function to add athletes'''
+    if current_user.user_type != 'admin' and current_user.user_type != 'super_admin':
+        return redirect(url_for('main.index'))
 
     if request.method == "POST" and "action" in request.form:
         action = request.form.get("action")
@@ -356,15 +374,15 @@ def add_athletes():
 @main_blueprint.route("/add_coaches", methods=["GET", "POST"])
 @login_required
 def add_coaches():
-
-    if current_user.user_type != "admin" and current_user.user_type != "super_admin":
-        return redirect(url_for("main.index"))
-
-    if request.method == "POST" and "action" in request.form:
-        action = request.form.get("action")
-        first_name = request.form.get("first_name")
-        last_name = request.form.get("last_name")
-
+    '''Function to add coaches'''
+    if current_user.user_type != 'admin' and current_user.user_type != 'super_admin':
+        return redirect(url_for('main.index'))
+    
+    if request.method == 'POST' and 'action' in request.form:
+        action = request.form.get('action')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        
         file = request.files.get("file")
 
         delete_coach = request.form.get("delete_coach")
@@ -433,15 +451,15 @@ def add_coaches():
 @main_blueprint.route("/add_admins", methods=["GET", "POST"])
 @login_required
 def add_admins():
-
-    if current_user.user_type != "super_admin":
-        return redirect(url_for("main.index"))
-
-    if request.method == "POST" and "action" in request.form:
-        action = request.form.get("action")
-        first_name = request.form.get("first_name")
-        last_name = request.form.get("last_name")
-
+    '''Function to add admins'''
+    if current_user.user_type != 'super_admin':
+        return redirect(url_for('main.index'))
+    
+    if request.method == 'POST' and 'action' in request.form:
+        action = request.form.get('action')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        
         file = request.files.get("file")
 
         delete_admin = request.form.get("delete_admin")
@@ -498,6 +516,7 @@ def add_admins():
 
 
 def process_csv(file, action):
+    '''Function to process a csv file'''
     try:
         file.save(file.filename)
         with open(file.filename, "r") as f:
@@ -545,7 +564,7 @@ def process_csv(file, action):
 @main_blueprint.route("/add_teams", methods=["GET", "POST"])
 @login_required
 def add_teams():
-
+    '''Function to add teams'''
     if current_user.user_type != "admin" and current_user.user_type != "super_admin":
         return redirect(url_for("main.index"))
 

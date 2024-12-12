@@ -51,7 +51,6 @@ class Peak(User):
         'polymorphic_identity': 'peak',
     }
 
-
 class Coach(User):
     __tablename__ = 'coaches'
 
@@ -66,7 +65,6 @@ class Coach(User):
 
     def __repr__(self):
         return f"<Coach {self.first_name} {self.last_name}, Team ID: {self.team_id}>"
-
 
 class Athlete(User):
     __tablename__ = 'athletes'
