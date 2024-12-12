@@ -35,7 +35,8 @@
 
             <form action="{{ url_for('main.add_teams') }}" method="post">
                 <div class="inputs">
-                    <select name="delete_team">
+                    <select name="delete_team" class="searchable-dropdown">
+                        <option value="">Select an option...</option>
                         {% for team in teams %}
                             <option value="{{ team.id }}">{{ team.name }} (ID: {{ team.id }})</option>
                         {% endfor %}
