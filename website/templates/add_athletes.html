@@ -42,7 +42,8 @@
 
             <form action="{{ url_for('main.add_athletes') }}" method="post">
                 <div class="inputs">
-                    <select name="delete_athlete">
+                    <select name="delete_athlete" class="searchable-dropdown">
+                        <option value="">Select an option...</option>
                         {% for athlete in athletes %}
                             <option value="{{ athlete.id }}">{{ athlete.name }} (ID: {{ athlete.id }})</option>
                         {% endfor %}

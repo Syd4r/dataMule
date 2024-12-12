@@ -31,29 +31,7 @@
         {% block content %}{% endblock %}
     </div>
 
-
-    <script>
-        function toggleMenu() {
-            document.getElementById("hamburgerMenu").classList.toggle("open");
-        }
-    </script>
-
-    <script>
-        // Get the toggle checkbox element
-        const darkModeCheckbox = document.getElementById('darkModeCheckbox');
-
-        // Check if dark mode was previously enabled and apply it
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
-            darkModeCheckbox.checked = true;
-        }
-
-        // Add event listener for the dark mode toggle
-        darkModeCheckbox.addEventListener('change', () => {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        });
-    </script>
+    <script src="{{ url_for('static', filename='base.js') }}"></script>
 
     {% block extra_js %}{% endblock %}
 

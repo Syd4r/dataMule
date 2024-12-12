@@ -91,7 +91,7 @@ body {
 }
 
 .icon-box:hover {
-    background-color: #c6c6ce;
+    background-color: var(--hover-color);
     transform: translateY(-5px); /* Slight lift effect */
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
     /* add a border to the icon-box */

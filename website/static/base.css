@@ -5,6 +5,7 @@
     --button-background-color: #007bff;
     --button-hover-background-color: #0056b3;
     --input-background-color: #f9f9f9;
+    --hover-color: #d6d6d6;
 }
 
 body {
@@ -19,6 +20,7 @@ body {
     --button-background-color: #1a73e8;
     --button-hover-background-color: #0c56b1;
     --input-background-color: #333333;
+    --hover-color: #585858;
 }
 
 input, .flash-message, .icon-box, .chart-container {
@@ -128,5 +130,55 @@ button:hover {
     font-size: 24px;
     cursor: pointer;
     padding: 15px;
+}
+
+.dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.custom-dropdown {
+    position: relative;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.dropdown-search {
+    box-sizing: border-box;
+    padding: 8px;
+    font-size: 14px;
+    border: none;
+    outline: none;
+}
+
+.options-list {
+    max-height: 200px;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-top: none;
+    background: var(--input-background-color);
+    display: none;
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+}
+
+.custom-dropdown.open .options-list {
+    display: block;
+}
+
+.option-item {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.option-item:hover {
+    background: var(--hover-color);
 }
 
