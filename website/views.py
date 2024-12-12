@@ -58,7 +58,7 @@ def get_links(user):
 
     links += [
         {
-            "name": "Hawkins Dynamics",
+            "name": "Hawkin Dynamics",
             "url": url_for("main.hawkin"),
             "icon": "images/hawkin.jpg"
         }
