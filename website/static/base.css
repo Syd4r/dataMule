@@ -47,7 +47,7 @@ button:hover {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--button-background-color);
-    font-family: 'Arial', sans-serif;
+    font-family: 'Libre Franklin', sans-serif;
     text-align: center; /* Ensure proper alignment */
     width: fit-content; /* Ensure it doesn't stretch unnecessarily */
 }
@@ -94,7 +94,7 @@ button:hover {
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     z-index: 100;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Libre Franklin', sans-serif;
 }
 
 .hamburger-menu.open {
