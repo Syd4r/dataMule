@@ -7,7 +7,7 @@
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-left: 5px solid var(--button-background-color);
-    font-family: Arial, sans-serif;
+    font-family: 'Libre Franklin', sans-serif;
     background-color: var(--input-background-color);
     color: var(--text-color);
 }
