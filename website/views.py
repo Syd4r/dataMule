@@ -9,6 +9,8 @@ from .models import Athlete, Team, TeamUserAssociation, Coach, Admin
 from hdforce import AuthManager
 import hdforce as hd
 
+PRESENTATION_MODE = True
+
 # Create a blueprint
 main_blueprint = Blueprint('main', __name__)
 
@@ -240,7 +242,7 @@ def hawkin():
             athlete_team_name = fix_team_names(athlete.sport, athlete.gender)
             data_list[athlete_team_name.replace("'", "")].append(athlete.first_name.replace("'", "") + " " + athlete.last_name.replace("'", ""))
     
-    return render_template("hawkin.html", athlete_data=json.dumps(data_list), links=get_links(user), user_type=user.user_type)
+    return render_template("hawkin.html", athlete_data=json.dumps(data_list), links=get_links(user), user_type=user.user_type, PRESENTATION_MODE=PRESENTATION_MODE)
 
 @main_blueprint.route('/get_athlete_data/<user_name>', methods=['GET'])
 @login_required

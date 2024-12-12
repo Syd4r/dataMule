@@ -68,8 +68,9 @@
 {% block extra_js %}
     <script>
         let athleteData = JSON.parse('{{ athlete_data | safe }}');
-        console.log(athleteData);
+
         const userType = '{{ user_type }}';
+        const PRESENTATION_MODE = '{{ PRESENTATION_MODE }}';
 
         const statSelect = document.getElementById("statSelect");
         const athleteSelect = document.getElementById("athleteSelect");
@@ -137,6 +138,68 @@
             }
         });
 
+        const name_mangler = new Object();
+        name_mangler['counter'] = 0;
+
+        name_mangler.unmangled_name = new Object();
+        name_mangler.mangled_name = new Object();
+
+        let ordinal_suffix = function(num) {
+            let str = num.toString();
+            let tens_place = '0';
+            let ones_place = str[str.length-1];
+
+            if (str.length >= 2) {
+                tens_place = str[str.length-2];
+            }
+
+            if (tens_place === '1') {
+                return 'th';
+            }
+            else {
+                switch (ones_place) {
+                    case '0':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        return 'th';
+                    case '1':
+                        return 'st';
+                    case '2':
+                        return 'nd';
+                    case '3':
+                        return 'rd';
+                }
+            }
+        };
+
+        name_mangler.mangle = name => {
+            if (name_mangler.mangled_name[name] === undefined) {
+                if (name === 'Bryce Malary') {
+                    name_mangler.mangled_name[name] = 'Naser Al Mighty';
+                }
+
+                else {
+                    name_mangler.counter++;
+                    name_mangler.mangled_name[name] = 'Jesse Doe the ' + name_mangler.counter + ordinal_suffix(name_mangler.counter); 
+                }
+
+                name_mangler.unmangled_name[name_mangler.mangled_name[name]] = name;
+            }
+
+            return name_mangler.mangled_name[name];
+        };
+
+        name_mangler.unmangle = name => {
+            if (name_mangler.unmangled_name[name] === undefined) {
+                console.error('ERROR, CAN\'T UNMANGLE ' + name);
+            }
+
+            return name_mangler.unmangled_name[name];
+        };
         
         if (userType !== "athlete") {
             // Populate the team dropdown on page load
@@ -159,7 +222,16 @@
                     if (team) {
                         for (const athlete of athleteData[team]) {
                             const option = document.createElement("option");
-                            option.textContent = athlete;
+
+                            
+                            if (PRESENTATION_MODE) {
+                                option.textContent = name_mangler.mangle(athlete);
+                            }
+
+                            else {
+                                option.textContent = athlete;
+                            }
+
                             athleteSelect.appendChild(option);
                         }
                     }
@@ -173,16 +245,25 @@
                 // Populate the athlete dropdown on page load
                 for (const athlete of athleteData) {
                     //check if an option already exists
-                    if (!athleteSelect.innerHTML.includes(athlete)) {
+                    if (athleteSelect.innerHTML === '') {
+
                         const option = document.createElement("option");
-                        option.textContent = athlete;
+
+                        if (PRESENTATION_MODE) {
+                            option.textContent = name_mangler.mangle(athlete);
+                        }
+
+                        else{
+                            option.textContent = athlete;
+                        }
+
                         athleteSelect.appendChild(option);
                     }
                 }
-            }
+            } 
 
             athleteSelect.addEventListener("change", () => {
-                let athlete = athleteSelect.value;
+                let athlete = name_mangler.unmangle(athleteSelect.value);
                 statSelect.value = "";
                 clearChart();
                 athlete = athlete.replace(/ /g, "-");
