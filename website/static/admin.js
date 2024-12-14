@@ -13,7 +13,7 @@ function loadStatOptions(data) {
     statKeys = statKeys.filter(key => !key.startsWith("external"));
 
     //keep the stat loaded if one has already been selected
-    if(statChart.options.scales.y.title.text != statSelect.value){
+    if(statChart.options.scales.y.title.text != statSelect.value || statChart.options.scales.y.title.text == ""){
     statSelect.innerHTML = '<option value="">Select Stat</option>';
     }
     statKeys.forEach(stat => {
@@ -84,7 +84,7 @@ if (userType !== "athlete") {
             const team = teamDropdown.value;
             athleteSelect.innerHTML = '<option value="">Select Athlete</option>';
             athleteSelect.value = "";
-            statSelect.value = "";
+            statSelect.innerHTML = '<option value="">Select Stat</option>';
             clearChart();
             if (team){
                 athleteList.innerHTML=""; //resets the athlete menu when a new team is selected
@@ -133,7 +133,9 @@ if (userType !== "athlete") {
         if(current_athlete){
             //uncheck previously selected checkbox and selecte new checkbox
             let current_checkbox = document.getElementById("checkbox"+current_athlete);
-            current_checkbox.checked = false;
+            if(current_checkbox){
+                current_checkbox.checked = false;
+            }
             current_athlete = athlete;
             let new_checkbox = document.getElementById("checkbox"+athlete);
             new_checkbox.checked = true;

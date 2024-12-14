@@ -19,7 +19,18 @@
     width: 200px;
     height: 500px;
     overflow-y:scroll;
+    margin-right: 15px;
 }
+ul{
+    list-style: none;
+}
+
+.athlete-list li{
+    border: 2px solid var(--button-background-color);
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
 .athlete-chart{
     flex-grow: 1;
 }

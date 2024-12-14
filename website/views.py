@@ -399,6 +399,7 @@ def add_coaches():
             try:
                 if action == "add" and not coach:
                     team = Team.query.filter_by(name=form_data["team"]).first()
+                    form_data.pop("team")
                     db.session.add(Coach(**form_data, team=team))
                     flash("Coach added successfully!", "success")
                 elif action == "delete" and coach:

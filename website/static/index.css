@@ -67,7 +67,7 @@ body {
     padding-left: 10vw;
     padding-right: 10vw;
     padding-top: 5vh;
-    padding-bottom: 10vh;
+    padding-bottom: 20vw;
     background-color: var(--input-background-color);
     justify-items: center;
 }
@@ -82,12 +82,14 @@ body {
     transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
     margin: auto;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Initial subtle shadow */
-    min-height: 20vw;
-    /* made the text have a max width of 50% */
+    min-height: 18.5vw;
+    max-width: 40vh;
+    /* made the text have a max width of 50% 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    */
 }
 
 .icon-box:hover {
