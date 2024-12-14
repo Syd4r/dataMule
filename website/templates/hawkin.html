@@ -18,18 +18,18 @@
         {% if user_type == "coach" %}
             <!-- Coach's dropdown to select an athlete -->
             <label for="athleteSelect" class="stat-label">Select Athlete:</label>
-            <select id="athleteSelect">
+            <select id="athleteSelect" class="searchable-dropdown">
                 <option value="">Select Athlete</option>
             </select>
 
         {% elif user_type == "admin" or user_type == "super_admin" %}
             <!-- Admin's and Super_Admin's dropdowns to select a team and then an athlete -->
             <label for="teamSelect" class="stat-label">Select Team:</label>
-            <select id="teamSelect">
+            <select id="teamSelect" class="searchable-dropdown">
                 <option value="">Select Team</option>
             </select>
             <label for="athleteSelect" class="stat-label">Select Athlete:</label>
-            <select id="athleteSelect">
+            <select id="athleteSelect" class="searchable-dropdown">
                 <option value="">Select Athlete</option>
             </select>
         {% endif %}    
@@ -37,7 +37,7 @@
         
         <!-- Dropdown to select the stat to visualize -->
         <label for="statSelect" class="stat-label">Select Stat:</label>
-        <select id="statSelect">
+        <select id="statSelect" class="searchable-dropdown">
             <option value="">Select Stat</option>
             <!-- Options will be added dynamically in JavaScript -->
         </select>

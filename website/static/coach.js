@@ -13,8 +13,8 @@ function loadStatOptions(data) {
     statKeys = statKeys.filter(key => !key.startsWith("external"));
 
     //keep the stat loaded if one has already been selected
-    if(statChart.options.scales.y.title.text != statSelect.value){
-    statSelect.innerHTML = '<option value="">Select Stat</option>';
+    if(statChart.options.scales.y.title.text != statSelect.value || statChart.options.scales.y.title.text == ""){
+        statSelect.innerHTML = '<option value="">Select Stat</option>';
     }
     statKeys.forEach(stat => {
         const option = document.createElement("option");

@@ -278,8 +278,8 @@ def hawkin():
                 + " "
                 + athlete.last_name.replace("'", "")
             )
-    print("datalist is :")
-    print(data_list)
+    #print("datalist is :")
+    #print(data_list)
     return render_template(
         "hawkin.html",
         athlete_data=json.dumps(data_list),
@@ -399,6 +399,7 @@ def add_coaches():
             try:
                 if action == "add" and not coach:
                     team = Team.query.filter_by(name=form_data["team"]).first()
+                    form_data.pop("team")
                     db.session.add(Coach(**form_data, team=team))
                     flash("Coach added successfully!", "success")
                 elif action == "delete" and coach:
