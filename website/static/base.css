@@ -136,6 +136,7 @@ button:hover {
     position: relative;
     display: inline-block;
     width: 100%;
+    margin-bottom: 1vh;
 }
 
 .custom-dropdown {
@@ -151,6 +152,7 @@ button:hover {
     font-size: 14px;
     border: none;
     outline: none;
+    width: 100%;
 }
 
 .options-list {

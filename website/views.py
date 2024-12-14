@@ -278,8 +278,8 @@ def hawkin():
                 + " "
                 + athlete.last_name.replace("'", "")
             )
-    print("datalist is :")
-    print(data_list)
+    #print("datalist is :")
+    #print(data_list)
     return render_template(
         "hawkin.html",
         athlete_data=json.dumps(data_list),

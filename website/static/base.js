@@ -2,6 +2,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const selects = document.querySelectorAll('.searchable-dropdown');
 
     selects.forEach(select => {
+        //When items are added to the select, update the dropdown
+        const observer = new MutationObserver(() => {
+            searchInput.value = 'Search...';
+            populateOptions();
+        });
+        observer.observe(select, {childList: true});
         // Wrap the <select> in a custom dropdown structure
         const wrapper = document.createElement('div');
         wrapper.className = 'dropdown-wrapper';
@@ -32,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const populateOptions = () => {
             optionsList.innerHTML = ''; // Clear previous options
             Array.from(select.options).forEach(option => {
+                //console.log(option);
                 const listItem = document.createElement('li');
                 listItem.textContent = option.textContent;
                 listItem.dataset.value = option.value;
@@ -43,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     event.stopPropagation(); // Prevent dropdown closing
                     select.value = option.value;
                     searchInput.value = option.textContent; // Show selected value
+                    select.dispatchEvent(new Event('change')); // Trigger change event
                     dropdownContainer.classList.remove('open');
                 });
             });
