@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     selects.forEach(select => {
         //When items are added to the select, update the dropdown
         const observer = new MutationObserver(() => {
-            searchInput.value = 'Search...';
+            searchInput.value = '';
             populateOptions();
         });
         observer.observe(select, {childList: true});
