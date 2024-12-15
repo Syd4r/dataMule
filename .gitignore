@@ -3,4 +3,5 @@ mydatabase.db
 .env
 requirements.txt
 .ds_store
-
+.coverage
+.pre-commit-config.yaml

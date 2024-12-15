@@ -5,26 +5,11 @@ from website import db
 from website.models import Athlete, Team, Coach, User
 import os
 
-@pytest.fixture
-def test_user(test_app):
-    with test_app.app_context():
-        # Add a test user
-        user = User(
-            email="testuser@example.com",
-            first_name="Test",
-            last_name="User",
-            user_type="admin"
-        )
-        db.session.add(user)
-        yield user
-        db.session.rollback()
-
 def test_index(test_client, login_user):
     # Test the index route
     response = test_client.get('/')
     assert b"test user" in response.data  # Ensure user data is in the response
     assert response.status_code == 200
-
 
 def test_hawkin_athlete_data(test_client, login_athlete):
     # Test /hawkin route for an athlete user

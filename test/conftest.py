@@ -17,18 +17,11 @@ def test_app():
     with app.app_context():
         db.session.remove()
 
-@pytest.fixture(scope='module')
-def client(test_app):
-    return test_app.test_client()
-
 @pytest.fixture(scope='function')
 def session(test_app):
     with test_app.app_context():
         yield db.session
         db.session.rollback()
-
-
-
 
 @pytest.fixture()
 def test_client():
@@ -107,25 +100,3 @@ def login_SuperAdmin(test_client,new_session):
 
     new_session.delete(user)
     new_session.commit()
-
-
-@pytest.fixture()
-def athlete_user():
-    user = Athlete.query.filter_by(first_name='Jon', last_name='Mears').first()
-    login_user(user)
-
-    yield user
-
-@pytest.fixture()
-def admin_user():
-    admin = Admin.query.filter_by(first_name='Admin', last_name='Andy').first()
-    login_user(admin)
-
-    yield admin
-
-@pytest.fixture()
-def superadmin_user():
-    superadmin = SuperAdmin.query.filter_by(first_name='Super', last_name='Admin').first()
-
-    login_user(superadmin)
-    yield superadmin
