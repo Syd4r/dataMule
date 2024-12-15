@@ -145,7 +145,7 @@ def getUserData(user):
             user.hawkins_database_id = id
             db.session.commit()
         except:
-            print(f"Could not find athlete {name} in Hawkins Dynamics database")
+            flash(f"Could not find athlete {name} in Hawkins Dynamics database",'error')
             return []
     else:
         id = user.hawkins_database_id
@@ -213,57 +213,6 @@ def hawkin():
     else:  # admin or super admin
         all_teams = Team.query.all()
         # Check if no teams exist in the database
-        if (
-            len(all_teams) == 0
-        ):  # if there are no teams in the database, we need to add them. Doing this manually would be a pain, so we will do it automatically, this literally will only happen once
-            all_athletes = Athlete.query.all()
-            hd_teams = hd.GetTeams()  # this is a pandas dataframe
-            # theres a change that teams have spaces at the end of their names, so we need to strip them
-            hd_teams["name"] = hd_teams["name"].str.strip()
-            # print(hd_teams)
-            allteamnames = {}
-            teams = {}
-
-            for athlete in all_athletes:
-                athlete_team_name = athlete.sport
-
-                athlete_team_name = fix_team_names(athlete_team_name, athlete.gender)
-
-                if athlete_team_name not in allteamnames.keys():
-                    try:
-                        allteamnames[athlete_team_name] = [athlete]
-                        # print(athlete_team_name)
-                        # replace Lacrosse with LAX in any part of the string
-                        hawkins_database_id = hd_teams.loc[
-                            hd_teams["name"] == athlete_team_name
-                        ]["id"].values[0]
-                        # print(hawkins_database_id)
-                        team = Team(
-                            name=athlete_team_name,
-                            sport=athlete_team_name,
-                            hawkins_database_id=hawkins_database_id,
-                        )
-                        teams[athlete_team_name] = team
-                        association = TeamUserAssociation(team=team, user=athlete)
-                        db.session.add(team)
-                        db.session.add(association)
-                    except:
-                        print(
-                            f"Could not find team {athlete_team_name} in Hawkins Dynamics database"
-                        )
-                else:
-                    try:
-                        allteamnames[athlete_team_name].append(athlete)
-                        association = TeamUserAssociation(
-                            team=teams[athlete_team_name], user=athlete
-                        )
-                        db.session.add(association)
-                    except:
-                        pass
-
-            # Commit all changes to the database in one transaction
-            db.session.commit()
-            all_teams = Team.query.all()
 
         athletes = Athlete.query.all()
         data_list = {}
