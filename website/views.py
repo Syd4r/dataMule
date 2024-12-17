@@ -502,6 +502,15 @@ def process_csv(file, action):
                         db.session.add(Team(name=data[0], sport=data[0]))
                     elif action == "delete" and team:
                         db.session.delete(team)
+                
+                elif len(data) == 2:
+                    admin = Admin.query.filter_by(
+                        first_name=data[0], last_name=data[1]
+                    ).first()
+                    if action == "add" and admin is None:
+                        db.session.add(Admin(first_name=data[0], last_name=data[1]))
+                    elif action == "delete" and admin:
+                        db.session.delete(admin)
 
         db.session.commit()
         flash(f"Entities {action}ed successfully!", "success")

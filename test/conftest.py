@@ -50,8 +50,12 @@ def secret_key():
 
 @pytest.fixture()
 def login_user(test_client,new_session):
-
     user = User(first_name="test", last_name="user", email="testuser@test.com", user_type="user")
+    #if the user already exists, delete it
+    existing_user = new_session.query(User).filter_by(email="testuser@test.com").first()
+    if existing_user:
+        new_session.delete(existing_user)
+        new_session.commit()
     user.set_password("securepassword")
     new_session.add(user)
     new_session.commit()
@@ -71,6 +75,10 @@ def login_athlete(test_client,new_session):
         birth_date="2000-01-01", gender="M", sport="Testing",
         position="Tester", grad_year=2024
     )
+    existing_athlete = new_session.query(Athlete).filter_by(email="testathlete@test.com").first()
+    if existing_athlete:
+        new_session.delete(existing_athlete)
+        new_session.commit()
     athlete.email = "testathlete@test.com"
     athlete.set_password("password")
     new_session.add(athlete)
@@ -87,6 +95,10 @@ def login_athlete(test_client,new_session):
 @pytest.fixture()
 def login_SuperAdmin(test_client,new_session):
     user = SuperAdmin(first_name="test", last_name="user", email="testuser@test.com")
+    existing_user = new_session.query(SuperAdmin).filter_by(email="testuser@test.com").first()
+    if existing_user:
+        new_session.delete(existing_user)
+        new_session.commit()
     user.set_password("securepassword")
     new_session.add(user)
     new_session.commit()

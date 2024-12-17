@@ -85,7 +85,7 @@ class Athlete(User):
     }
 
     def __repr__(self):
-        return f"<Athlete {self.first_name} {self.last_name}, Colby ID: {self.colby_id}>"
+        return f"<Athlete {self.first_name} {self.last_name}, ID: {self.id}, Hawkins ID: {self.hawkins_id}>"
     
     def __init__(self, hawkins_id, first_name, last_name, birth_date, gender, sport, position, grad_year):
         self.hawkins_id = hawkins_id
