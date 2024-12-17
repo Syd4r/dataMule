@@ -97,3 +97,44 @@ def test_athlete_performance(session):
 
     assert retreived_performance.jump_height == 69420 
     session.rollback()
+
+def test_representation(session):
+    team = Team(name="TestTeam", sport="Balling")
+    coach = Coach(first_name="Coach6969", last_name="Test", team=team)
+    session.add(team)
+    session.add(coach)
+    athlete = Athlete(
+        hawkins_id="H1234", first_name="Test", last_name="Athlete",
+        birth_date="2000-01-01", gender="M", sport="Testing",
+        position="Tester", grad_year=2024
+    )
+    session.add(athlete)
+    retreived_team = session.query(Team).filter_by(name="TestTeam").first()
+    retreived_coach = session.query(Coach).filter_by(first_name="Coach6969").first()
+    retrieved = session.query(Athlete).filter_by(hawkins_id="H1234").first()
+
+    team = Team(name="Test", sport="TestBall")
+    user = User(first_name="Player", last_name="One", email="player1@example.com", user_type="user")
+    association = TeamUserAssociation(team=team, user=user, role="Player")
+    session.add_all([team, user, association])
+    assoc = session.query(TeamUserAssociation).filter_by(team=team).first()
+    performance = AthletePerformance(athlete_id=retrieved.id)
+    note = Note(text="Good Job!")
+
+    user_repr = user.__repr__()
+    note_repr = note.__repr__()
+    perf_repr = performance.__repr__()
+    coach_repr = retreived_coach.__repr__()
+    team_repr = retreived_team.__repr__()
+    repr = retrieved.__repr__()
+    assoc_repr = assoc.__repr__()
+
+    assert "User" in user_repr
+    assert "Note ID" in note_repr
+    assert "Performance" in perf_repr
+    assert "Player" in assoc_repr
+    assert "Test" in repr
+    assert "Coach6969" in coach_repr
+    assert "TestTeam" in team_repr
+    
+    session.rollback()
