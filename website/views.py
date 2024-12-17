@@ -212,58 +212,6 @@ def hawkin():
 
     else:  # admin or super admin
         all_teams = Team.query.all()
-        # Check if no teams exist in the database
-        if (
-            len(all_teams) == 0
-        ):  # if there are no teams in the database, we need to add them. Doing this manually would be a pain, so we will do it automatically, this literally will only happen once
-            all_athletes = Athlete.query.all()
-            hd_teams = hd.GetTeams()  # this is a pandas dataframe
-            # theres a change that teams have spaces at the end of their names, so we need to strip them
-            hd_teams["name"] = hd_teams["name"].str.strip()
-            # print(hd_teams)
-            allteamnames = {}
-            teams = {}
-
-            for athlete in all_athletes:
-                athlete_team_name = athlete.sport
-
-                athlete_team_name = fix_team_names(athlete_team_name, athlete.gender)
-
-                if athlete_team_name not in allteamnames.keys():
-                    try:
-                        allteamnames[athlete_team_name] = [athlete]
-                        # print(athlete_team_name)
-                        # replace Lacrosse with LAX in any part of the string
-                        hawkins_database_id = hd_teams.loc[
-                            hd_teams["name"] == athlete_team_name
-                        ]["id"].values[0]
-                        # print(hawkins_database_id)
-                        team = Team(
-                            name=athlete_team_name,
-                            sport=athlete_team_name,
-                            hawkins_database_id=hawkins_database_id,
-                        )
-                        teams[athlete_team_name] = team
-                        association = TeamUserAssociation(team=team, user=athlete)
-                        db.session.add(team)
-                        db.session.add(association)
-                    except:
-                        print(
-                            f"Could not find team {athlete_team_name} in Hawkins Dynamics database"
-                        )
-                else:
-                    try:
-                        allteamnames[athlete_team_name].append(athlete)
-                        association = TeamUserAssociation(
-                            team=teams[athlete_team_name], user=athlete
-                        )
-                        db.session.add(association)
-                    except:
-                        pass
-
-            # Commit all changes to the database in one transaction
-            db.session.commit()
-            all_teams = Team.query.all()
         athletes = Athlete.query.all()
         data_list = {}
         for team in all_teams:
@@ -316,22 +264,22 @@ def add_athletes():
         delete_athlete = request.form.get("delete_athlete")
 
         if hawkins_id:
-            form_data = {
-                "hawkins_id": hawkins_id,
-                "first_name": request.form.get("first_name"),
-                "last_name": request.form.get("last_name"),
-                "birth_date": request.form.get("birth_date"),
-                "gender": request.form.get("gender"),
-                "sport": request.form.get("sport"),
-                "position": request.form.get("position"),
-                "grad_year": request.form.get("grad_year"),
-            }
-            athlete = Athlete.query.filter_by(hawkins_id=hawkins_id).first()
             try:
+                form_data = {
+                    "hawkins_id": hawkins_id,
+                    "first_name": request.form.get("first_name"),
+                    "last_name": request.form.get("last_name"),
+                    "birth_date": request.form.get("birth_date"),
+                    "gender": request.form.get("gender"),
+                    "sport": request.form.get("sport"),
+                    "position": request.form.get("position"),
+                    "grad_year": request.form.get("grad_year"),
+                }
+                athlete = Athlete.query.filter_by(hawkins_id=hawkins_id).first()
                 if action == "add" and not athlete:
                     db.session.add(Athlete(**form_data))
                     flash("Athlete added successfully!", "success")
-                elif action == "delete" and athlete:
+                elif action == "delete":
                     db.session.delete(athlete)
                     flash("Athlete deleted successfully!", "success")
                 db.session.commit()
@@ -345,9 +293,9 @@ def add_athletes():
                 process_csv(file, action)
 
         elif delete_athlete:
-            athlete = Athlete.query.filter_by(hawkins_id=delete_athlete).first()
             try:
-                if action == "delete-dropdown" and athlete:
+                athlete = Athlete.query.filter_by(hawkins_id=delete_athlete).first()
+                if action == "delete-dropdown":
                     db.session.delete(athlete)
                     flash("Athlete deleted successfully!", "success")
                 db.session.commit()
@@ -387,21 +335,21 @@ def add_coaches():
         delete_coach = request.form.get("delete_coach")
 
         if first_name:
-            form_data = {
-                "first_name": first_name,
-                "last_name": request.form.get("last_name"),
-                "team": request.form.get("team"),
-            }
-            coach = Coach.query.filter_by(
-                first_name=first_name, last_name=last_name
-            ).first()
             try:
+                form_data = {
+                    "first_name": first_name,
+                    "last_name": request.form.get("last_name"),
+                    "team": request.form.get("team"),
+                }
+                coach = Coach.query.filter_by(
+                    first_name=first_name, last_name=last_name
+                ).first()
                 if action == "add" and not coach:
                     team = Team.query.filter_by(name=form_data["team"]).first()
                     form_data.pop("team")
                     db.session.add(Coach(**form_data, team=team))
                     flash("Coach added successfully!", "success")
-                elif action == "delete" and coach:
+                elif action == "delete":
                     db.session.delete(coach)
                     flash("Coach deleted successfully!", "success")
                 db.session.commit()
@@ -414,9 +362,9 @@ def add_coaches():
                 process_csv(file, action)
 
         elif delete_coach:
-            coach = Coach.query.filter_by(id=delete_coach).first()
             try:
-                if action == "delete-dropdown" and coach:
+                coach = Coach.query.filter_by(id=delete_coach).first()
+                if action == "delete-dropdown":
                     db.session.delete(coach)
                     flash("Coach deleted successfully!", "success")
                 db.session.commit()
@@ -465,19 +413,19 @@ def add_admins():
         delete_admin = request.form.get("delete_admin")
 
         if first_name:
-            form_data = {
-                "first_name": first_name,
-                "last_name": request.form.get("last_name"),
-            }
-
-            admin = Admin.query.filter_by(
-                first_name=first_name, last_name=last_name
-            ).first()
             try:
+                form_data = {
+                    "first_name": first_name,
+                    "last_name": request.form.get("last_name"),
+                }
+
+                admin = Admin.query.filter_by(
+                    first_name=first_name, last_name=last_name
+                ).first()
                 if action == "add" and not admin:
                     db.session.add(Admin(**form_data))
                     flash("Admin added successfully!", "success")
-                elif action == "delete" and admin:
+                elif action == "delete":
                     db.session.delete(admin)
                     flash("Admin deleted successfully!", "success")
                 db.session.commit()
@@ -490,9 +438,9 @@ def add_admins():
                 process_csv(file, action)
 
         elif delete_admin:
-            admin = Admin.query.filter_by(id=delete_admin).first()
             try:
-                if action == "delete-dropdown" and admin:
+                admin = Admin.query.filter_by(id=delete_admin).first()
+                if action == "delete-dropdown":
                     db.session.delete(admin)
                     flash("Admin deleted successfully!", "success")
                 db.session.commit()
@@ -552,6 +500,15 @@ def process_csv(file, action):
                         db.session.add(Team(name=data[0], sport=data[0]))
                     elif action == "delete" and team:
                         db.session.delete(team)
+                
+                elif len(data) == 2:
+                    admin = Admin.query.filter_by(
+                        first_name=data[0], last_name=data[1]
+                    ).first()
+                    if action == "add" and admin is None:
+                        db.session.add(Admin(first_name=data[0], last_name=data[1]))
+                    elif action == "delete" and admin:
+                        db.session.delete(admin)
 
         db.session.commit()
         flash(f"Entities {action}ed successfully!", "success")
@@ -576,12 +533,12 @@ def add_teams():
         delete_team = request.form.get("delete_team")
 
         if team_name:
-            team = Team.query.filter_by(name=team_name).first()
             try:
+                team = Team.query.filter_by(name=team_name).first()
                 if action == "add" and not team:
                     db.session.add(Team(name=team_name, sport=team_name))
                     flash("Team added successfully!", "success")
-                elif action == "delete" and team:
+                elif action == "delete":
                     db.session.delete(team)
                     flash("Team deleted successfully!", "success")
                 db.session.commit()
@@ -594,9 +551,9 @@ def add_teams():
                 process_csv(file, action)
 
         elif delete_team:
-            team = Team.query.filter_by(id=delete_team).first()
             try:
-                if action == "delete-dropdown" and team:
+                team = Team.query.filter_by(id=delete_team).first()
+                if action == "delete-dropdown":
                     db.session.delete(team)
                     flash("Team deleted successfully!", "success")
                 db.session.commit()
