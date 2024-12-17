@@ -51,6 +51,10 @@ def test_hawkin_admin_data(test_client, login_SuperAdmin):
     assert response.status_code == 200
     assert b"Select Team" in response.data
 
+def test_hawkin_coach(test_client, login_coach):
+    response = test_client.get('/hawkin')
+    assert response.status_code == 200
+    assert b"Select Athlete" in response.data
 
 def test_add_athletes(test_client, login_SuperAdmin ,new_session):
     # Test adding an athlete
@@ -117,6 +121,8 @@ def test_add_coaches(test_client,login_SuperAdmin,new_session):
     if added_coach:
         new_session.delete(added_coach)
         new_session.commit()
+
+
 
 def test_add_teams(test_client, login_SuperAdmin,new_session):
     # Test adding a team
