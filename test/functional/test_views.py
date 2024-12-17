@@ -85,11 +85,6 @@ def test_add_athletes(test_client, login_SuperAdmin ,new_session):
     assert response.status_code == 200
     assert b"Athlete deleted successfully!" in response.data
 
-    just_added = new_session.query(Athlete).filter_by(hawkins_id='69420').first()
-    if just_added:
-        new_session.delete(just_added)
-        new_session.commit()
-
 
 def test_add_coaches(test_client,login_SuperAdmin,new_session):
     # Test adding a coach
@@ -117,11 +112,6 @@ def test_add_coaches(test_client,login_SuperAdmin,new_session):
     assert response.status_code == 200
     assert b"Coach deleted successfully!" in response.data
 
-    added_coach = new_session.query(Coach).filter_by(first_name='TestCoach').first()
-    if added_coach:
-        new_session.delete(added_coach)
-        new_session.commit()
-
 
 
 def test_add_teams(test_client, login_SuperAdmin,new_session):
@@ -147,11 +137,6 @@ def test_add_teams(test_client, login_SuperAdmin,new_session):
     )
     assert response.status_code == 200
     assert b"Team deleted successfully!" in response.data
-
-    added_team = new_session.query(Team).filter_by(name="Testball").first()
-    if added_team:
-        new_session.delete(added_team)
-        new_session.commit()
     
 def test_add_admins(test_client, login_SuperAdmin,new_session):
     # Test adding an admin
@@ -176,11 +161,6 @@ def test_add_admins(test_client, login_SuperAdmin,new_session):
     )
     assert response.status_code == 200
     assert b"Admin deleted successfully!" in response.data
-
-    added_admin = new_session.query(User).filter_by(first_name='TestAdmin').first()
-    if added_admin:
-        new_session.delete(added_admin)
-        new_session.commit()
 
 def test_delete_athlete(test_client, login_SuperAdmin,new_session):
     # Test deleting an athlete
@@ -291,12 +271,6 @@ def test_add_athletes_from_csv(test_client, login_SuperAdmin,new_session):
     assert response.status_code == 200
     assert b"Entities deleteed successfully!" in response.data
 
-    # Clean up
-    athletes = new_session.query(Athlete).filter_by(hawkins_id='69421').all()
-    for athlete in athletes:
-        new_session.delete(athlete)
-    new_session.commit()
-
 def test_add_coaches_from_csv(test_client, login_SuperAdmin,new_session):
     # Test adding coaches from a CSV file
     csv_path = "csv/test_coach.csv"
@@ -321,12 +295,6 @@ def test_add_coaches_from_csv(test_client, login_SuperAdmin,new_session):
         )
     assert response.status_code == 200
     assert b"Entities deleteed successfully!" in response.data
-
-    # Clean up
-    coaches = new_session.query(Coach).filter_by(first_name='TestGuy').all()
-    for coach in coaches:
-        new_session.delete(coach)
-    new_session.commit()
 
 def test_add_teams_from_csv(test_client, login_SuperAdmin,new_session):
     # Test adding teams from a CSV file
@@ -353,12 +321,6 @@ def test_add_teams_from_csv(test_client, login_SuperAdmin,new_session):
     assert response.status_code == 200
     assert b"Entities deleteed successfully!" in response.data
 
-    # Clean up
-    teams = new_session.query(Team).filter_by(name='TestSportThing').all()
-    for team in teams:
-        new_session.delete(team)
-    new_session.commit()
-
 def test_add_admins_from_csv(test_client, login_SuperAdmin,new_session):
     # Test adding admins from a CSV file
     csv_path = "csv/test_admin.csv"
@@ -384,8 +346,109 @@ def test_add_admins_from_csv(test_client, login_SuperAdmin,new_session):
     assert response.status_code == 200
     assert b"Entities deleteed successfully!" in response.data
 
-    # Clean up
-    admins = new_session.query(User).filter_by(first_name='Freaky').all()
-    for admin in admins:
-        new_session.delete(admin)
-    new_session.commit()
+def test_add_athletes_error(test_client, login_SuperAdmin,new_session):
+    # Test adding an athlete that already exists
+    response = test_client.post(
+        '/add_athletes',
+        data={
+            'action': 'delete',
+            'hawkins_id': '69425',
+            'first_name': 'Test',
+            'last_name': 'Athlete',
+            'birth_date': '2000-01-01',
+            'gender': 'M',
+            'sport': 'Football',
+            'position': 'Quarterback',
+            'grad_year': '2024',
+        }
+    )
+    assert response.status_code == 200
+    assert b"Error" in response.data
+
+def test_add_coaches_error(test_client, login_SuperAdmin,new_session):
+    # Test adding a coach that already exists
+    response = test_client.post(
+        '/add_coaches',
+        data={
+            'action': 'delete',
+            'first_name': 'TestCoachLoser',
+            'last_name': 'Smith',
+            'team': 'Football'
+        }
+    )
+    assert response.status_code == 200
+    assert b"Error" in response.data
+
+def test_add_teams_error(test_client, login_SuperAdmin,new_session):
+    # Test adding a team that already exists
+    response = test_client.post(
+        '/add_teams',
+        data={
+            'action': 'delete',
+            'team_name': 'TestballtheSport',
+            'sport': 'Testball'
+        }
+    )
+    assert response.status_code == 200
+    assert b"Error" in response.data
+
+def test_add_admins_error(test_client, login_SuperAdmin,new_session):
+    # Test adding an admin that already exists
+    response = test_client.post(
+        '/add_admins',
+        data={
+            'action': 'delete',
+            'first_name': 'TestAdminLoserGuy',
+            'last_name': 'Smith',
+        }
+    )
+    assert response.status_code == 200
+    assert b"Error" in response.data
+
+def test_delete_athletes_error(test_client, login_SuperAdmin,new_session):
+    # Test deleting an athlete that does not exist
+    response = test_client.post(
+        '/add_athletes',
+        data={
+            'action': 'delete-dropdown',
+            'delete_athlete': '69425',
+        }
+    )
+    assert response.status_code == 200
+    assert b"Error" in response.data
+
+def test_delete_coaches_error(test_client, login_SuperAdmin,new_session):
+    # Test deleting a coach that does not exist
+    response = test_client.post(
+        '/add_coaches',
+        data={
+            'action': 'delete-dropdown',
+            'delete_coach': '69425',
+        }
+    )
+    assert response.status_code == 200
+    assert b"Error" in response.data
+
+def test_delete_teams_error(test_client, login_SuperAdmin,new_session):
+    # Test deleting a team that does not exist
+    response = test_client.post(
+        '/add_teams',
+        data={
+            'action': 'delete-dropdown',
+            'delete_team': '69425',
+        }
+    )
+    assert response.status_code == 200
+    assert b"Error" in response.data
+
+def test_delete_admins_error(test_client, login_SuperAdmin,new_session):
+    # Test deleting an admin that does not exist
+    response = test_client.post(
+        '/add_admins',
+        data={
+            'action': 'delete-dropdown',
+            'delete_admin': '69425',
+        }
+    )
+    assert response.status_code == 200
+    assert b"Error" in response.data
