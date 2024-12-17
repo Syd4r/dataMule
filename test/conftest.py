@@ -85,6 +85,27 @@ def login_athlete(test_client,new_session):
     new_session.commit()
 
 @pytest.fixture()
+def login_coach(test_client,new_session):
+    football = new_session.query(Team).filter_by(name="Football").first()
+    coach = Coach(
+        team_id=football.id,
+    )
+    coach.first_name="Andy"
+    coach.last_name="Nuggies Reid"
+    coach.email = "coach@coach.com"
+    coach.set_password("password")
+    new_session.add(coach)
+    new_session.commit()
+
+    test_client.post('/login', data={
+        "email": "coach@coach.com",
+        "password": "password",
+    }, follow_redirects=True)
+    yield
+    new_session.delete(coach)
+    new_session.commit()
+
+@pytest.fixture()
 def login_SuperAdmin(test_client,new_session):
     user = SuperAdmin(first_name="test", last_name="user", email="testuser@test.com")
     user.set_password("securepassword")

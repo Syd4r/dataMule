@@ -25,10 +25,6 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f"<User {self.first_name} {self.last_name}, ID: {self.id}, Type: {self.user_type}>"
     
-    def check_colby_id(self, colby_id):
-        colby_id = int(colby_id)
-        return self.colby_id == colby_id
-    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -85,7 +81,7 @@ class Athlete(User):
     }
 
     def __repr__(self):
-        return f"<Athlete {self.first_name} {self.last_name}, Colby ID: {self.colby_id}>"
+        return f"<Athlete {self.first_name} {self.last_name}>"
     
     def __init__(self, hawkins_id, first_name, last_name, birth_date, gender, sport, position, grad_year):
         self.hawkins_id = hawkins_id
